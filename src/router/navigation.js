@@ -26,6 +26,12 @@ export const menuItems = [
         Icon: FormatListBulletedOutlinedIcon
     },
     {
+        id: "editar",
+        path: "/editar",
+        title: "EditarFormulario",
+        Icon: FormatListBulletedOutlinedIcon
+    },
+    {
         id: "Establecimiento ",
         path: "/establecimiento",
         title: "Establecimientos",
