@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../../firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
-import { Box, FormControl, InputLabel, MenuItem, Select, Typography, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { collection, getDocs, updateDoc, doc, getDoc } from "firebase/firestore"; // Agregar getDoc a los imports
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
+} from "@mui/material";
+import { EditAttributesOutlined } from "@mui/icons-material";
 
 const EditarFormulario = () => {
   const [formularios, setFormularios] = useState([]);
@@ -36,19 +51,26 @@ const EditarFormulario = () => {
     setSecciones(formularioSeleccionado.secciones);
   };
 
-  const handleEditarPregunta = (seccionIndex, preguntaIndex) => {
-    // Implementa la lógica para editar la pregunta
-    console.log(`Editando pregunta ${preguntaIndex} de la sección ${seccionIndex}`);
-  };
-
-  const handleBorrarPregunta = (seccionIndex, preguntaIndex) => {
-    // Implementa la lógica para borrar la pregunta
-    console.log(`Borrando pregunta ${preguntaIndex} de la sección ${seccionIndex}`);
-  };
-
-  const handleEditarSeccionNombre = (seccionIndex) => {
-    // Implementa la lógica para editar el nombre de la sección
-    console.log(`Editando nombre de la sección ${seccionIndex}`);
+  const handleBorrarPregunta = async (seccionIndex, preguntaIndex) => {
+    try {
+      // Construir la referencia al documento específico que deseas actualizar
+      const formularioRef = doc(db, "formularios", formularioSeleccionadoId);
+  
+      // Obtener el formulario actual
+      const formularioSnap = await getDoc(formularioRef);
+      const formularioData = formularioSnap.data();
+      
+      // Modificar el array de preguntas localmente
+      const nuevasPreguntas = formularioData.secciones[seccionIndex].preguntas.filter((_, index) => index !== preguntaIndex);
+      formularioData.secciones[seccionIndex].preguntas = nuevasPreguntas;
+  
+      // Actualizar el documento en Firebase con el nuevo array de preguntas
+      await updateDoc(formularioRef, formularioData);
+  
+      console.log(`Borrando pregunta ${preguntaIndex} de la sección ${seccionIndex}`);
+    } catch (error) {
+      console.error("Error al borrar pregunta:", error);
+    }
   };
 
   return (
@@ -82,9 +104,7 @@ const EditarFormulario = () => {
         {secciones.map((seccion, seccionIndex) => (
           <div key={seccionIndex}>
             <h4>
-              Sección {seccionIndex + 1}: 
-              <Button onClick={() => handleEditarSeccionNombre(seccionIndex)}>Editar Nombre</Button>
-              {seccion.nombre}
+              Sección {seccionIndex + 1}: {seccion.nombre}
             </h4>
             <TableContainer>
               <Table>
@@ -99,7 +119,6 @@ const EditarFormulario = () => {
                     <TableRow key={preguntaIndex}>
                       <TableCell>{pregunta}</TableCell>
                       <TableCell>
-                        <Button onClick={() => handleEditarPregunta(seccionIndex, preguntaIndex)}>Editar</Button>
                         <Button onClick={() => handleBorrarPregunta(seccionIndex, preguntaIndex)}>Borrar</Button>
                       </TableCell>
                     </TableRow>
