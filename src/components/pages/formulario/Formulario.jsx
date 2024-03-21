@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Button, TextField, Typography, Box } from "@mui/material";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "../../../firebaseConfig";
 
 const Formulario = () => {
   const [nombreFormulario, setNombreFormulario] = useState("");
@@ -27,13 +29,28 @@ const Formulario = () => {
 
   const handleEliminarSeccion = (index) => {
     const nuevasSecciones = [...secciones];
-    nuevasSecciones.splice(index, 1); // Eliminar la sección en el índice especificado
+    nuevasSecciones.splice(index, 1);
     setSecciones(nuevasSecciones);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Lógica para enviar el formulario
+    try {
+      const formularioData = {
+        nombre: nombreFormulario,
+        secciones: secciones.map((seccion) => ({
+          nombre: seccion.nombre,
+          preguntas: seccion.preguntas.split("\n").map((pregunta) => pregunta.trim()).filter(Boolean),
+        })),
+        timestamp: Timestamp.now(),
+      };
+      const docRef = await addDoc(collection(db, "formularios"), formularioData);
+      console.log("Formulario creado con ID: ", docRef.id);
+      setNombreFormulario("");
+      setSecciones([{ nombre: "", preguntas: "" }]);
+    } catch (error) {
+      console.error("Error al crear el formulario: ", error);
+    }
   };
 
   return (

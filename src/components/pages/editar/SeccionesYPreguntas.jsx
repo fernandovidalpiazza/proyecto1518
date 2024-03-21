@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button, Modal, TextField } from "@mui/material";
+import { SettingsInputComponent } from "@mui/icons-material";
 
 const SeccionesYPreguntas = ({ secciones, handleBorrarPregunta, handleAbrirModalEditar }) => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -12,6 +13,7 @@ const SeccionesYPreguntas = ({ secciones, handleBorrarPregunta, handleAbrirModal
     setPreguntaIndex(preguntaIndex);
     setPreguntaActual(pregunta);
     setModalOpen(true);
+    
   };
 
   const handleCloseModal = () => {

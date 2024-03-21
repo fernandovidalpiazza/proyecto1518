@@ -4,7 +4,7 @@ import { collection, getDocs, updateDoc, doc, getDoc } from "firebase/firestore"
 import SelectorFormulario from "./SelectorFormulario";
 import SeccionesYPreguntas from "./SeccionesYPreguntas";
 import TituloFormulario from "./TituloFormulario";
-import { Modal } from "@mui/material";
+import { Modal, TextField, Button } from "@mui/material";
 import Editar from "./Editar";
 
 const EditarFormulario = () => {
@@ -129,3 +129,4 @@ const EditarFormulario = () => {
 };
 
 export default EditarFormulario;
+
