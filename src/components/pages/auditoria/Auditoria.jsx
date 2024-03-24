@@ -159,6 +159,7 @@ const Auditoria = () => {
 
       {formularioSeleccionadoId && <PreguntasYSeccion secciones={secciones} />}
     </div>
+    
   );
 };
 
