@@ -57,6 +57,7 @@ const EstablecimientosContainer = () => {
                 />
                 <Typography variant="h6" gutterBottom>
                   Nombre de la empresa: {empresa.nombre}
+                  
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   Dirección: {empresa.direccion}

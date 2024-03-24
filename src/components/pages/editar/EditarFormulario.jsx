@@ -75,7 +75,7 @@ const EditarFormulario = () => {
       const formularioSnap = await getDoc(formularioRef);
       const formularioData = formularioSnap.data();
       formularioData.secciones[seccionIndex].preguntas[preguntaIndex] = nuevaPregunta;
-      await updateDoc(formularioRef, formularioData);
+      await updateDoc(formularioRef, { secciones: formularioData.secciones });
       console.log(`Guardando cambios en la pregunta ${preguntaIndex} de la sección ${seccionIndex}`);
       handleCloseModalEditar();
     } catch (error) {
@@ -117,10 +117,12 @@ const EditarFormulario = () => {
           width: '100%'
         }}>
           <Editar
-            preguntaActual={preguntaActual}
-            handleClose={handleCloseModalEditar}
-            handleGuardar={handleGuardarCambiosPregunta}
-            open={modalAbierto}
+          
+           preguntaActual={preguntaActual}
+           handleClose={handleCloseModalEditar}
+           handleGuardar={handleGuardarCambiosPregunta} // Pasamos la función handleGuardarCambiosPregunta como prop
+           open={modalAbierto}
+         
           />
         </div>
       </Modal>

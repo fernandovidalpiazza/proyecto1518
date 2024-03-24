@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { Button, Modal, TextField } from "@mui/material";
 import { SettingsInputComponent } from "@mui/icons-material";
 
-const SeccionesYPreguntas = ({ secciones, handleBorrarPregunta, handleAbrirModalEditar }) => {
+
+const SeccionesYPreguntas = ({
+  secciones,
+  handleBorrarPregunta,
+  handleAbrirModalEditar,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [seccionIndex, setSeccionIndex] = useState(null);
   const [preguntaIndex, setPreguntaIndex] = useState(null);
@@ -13,7 +18,6 @@ const SeccionesYPreguntas = ({ secciones, handleBorrarPregunta, handleAbrirModal
     setPreguntaIndex(preguntaIndex);
     setPreguntaActual(pregunta);
     setModalOpen(true);
-    
   };
 
   const handleCloseModal = () => {
@@ -48,8 +52,20 @@ const SeccionesYPreguntas = ({ secciones, handleBorrarPregunta, handleAbrirModal
                 <tr key={preguntaIndex}>
                   <td>{pregunta}</td>
                   <td>
-                    <Button onClick={() => handleBorrarPregunta(seccionIndex, preguntaIndex)}>Borrar</Button>
-                    <Button onClick={() => handleOpenModal(seccionIndex, preguntaIndex, pregunta)}>Editar</Button>
+                    <Button
+                      onClick={() =>
+                        handleBorrarPregunta(seccionIndex, preguntaIndex)
+                      }
+                    >
+                      Borrar
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        handleOpenModal(seccionIndex, preguntaIndex, pregunta)
+                      }
+                    >
+                      Editar
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -57,27 +73,36 @@ const SeccionesYPreguntas = ({ secciones, handleBorrarPregunta, handleAbrirModal
           </table>
         </div>
       ))}
-      
+
       {/* Modal para editar pregunta */}
-      <Modal open={modalOpen} onClose={handleCloseModal} aria-labelledby="modal-title" aria-describedby="modal-description">
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          position: 'fixed',
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: 8,
-            padding: 16,
-            maxWidth: 400,
-            width: '100%'
-          }}>
+      <Modal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            position: "fixed",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: 8,
+              padding: 16,
+              maxWidth: 400,
+              width: "100%",
+            }}
+          >
             <h2 id="modal-title">Editar Pregunta</h2>
             <TextField
               id="pregunta-actual"
@@ -85,9 +110,10 @@ const SeccionesYPreguntas = ({ secciones, handleBorrarPregunta, handleAbrirModal
               variant="outlined"
               fullWidth
               value={preguntaActual}
-              disabled
+              onChange={(e) => setPreguntaActual(e.target.value)} // Agregamos esta línea para actualizar la pregunta actual
               style={{ marginBottom: 16 }}
             />
+
             {/* Aquí puedes agregar los campos para editar la pregunta si es necesario */}
             <Button onClick={handleGuardarCambios}>Guardar Cambios</Button>
             <Button onClick={handleCloseModal}>Cerrar</Button>
