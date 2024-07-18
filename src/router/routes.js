@@ -5,6 +5,8 @@ import SucursalContainer from "../components/pages/SucursalContainer.jsx/Sucursa
 import Auditoria from "../components/pages/auditoria/Auditoria";
 import Formulario from "../components/pages/formulario/Formulario";
 import EditarFormulario from "../components/pages/editar/EditarFormulario";
+//import Reporte from "../components/pages/auditoria/reporte";
+import Informe from "../components/pages/auditoria/Informe";
 
 export const routes = [
   {
@@ -41,5 +43,10 @@ export const routes = [
     id: "editar",
     path: "/editar",
     Element: EditarFormulario,
+  },
+  {
+    id: "reporte",
+    path: "/reporte",
+    Element: Informe,
   },
 ];

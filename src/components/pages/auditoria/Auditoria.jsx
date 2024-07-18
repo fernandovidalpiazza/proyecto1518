@@ -8,38 +8,32 @@ import {
   Select,
   Typography,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
+  Button,
 } from "@mui/material";
 import PreguntasYSeccion from "./PreguntasYSeccion";
+import Reporte from "../auditoria/reporte";
 
 const Auditoria = () => {
   const [empresas, setEmpresas] = useState([]);
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState("");
   const [sucursales, setSucursales] = useState([]);
+  const [sucursalSeleccionada, setSucursalSeleccionada] = useState("");
   const [formularios, setFormularios] = useState([]);
   const [formularioSeleccionadoId, setFormularioSeleccionadoId] = useState("");
   const [formularioSeleccionadoNombre, setFormularioSeleccionadoNombre] = useState("");
   const [secciones, setSecciones] = useState([]);
+  const [respuestas, setRespuestas] = useState([]);
+  const [mostrarReporte, setMostrarReporte] = useState(false);
 
   useEffect(() => {
     const obtenerEmpresas = async () => {
-      try {
-        const empresasCollection = collection(db, "empresas");
-        const snapshot = await getDocs(empresasCollection);
-        const empresasData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          nombre: doc.data().nombre,
-        }));
-        setEmpresas(empresasData);
-      } catch (error) {
-        console.error("Error al obtener empresas:", error);
-      }
+      const empresasCollection = collection(db, "empresas");
+      const snapshot = await getDocs(empresasCollection);
+      const empresasData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        nombre: doc.data().nombre,
+      }));
+      setEmpresas(empresasData);
     };
 
     obtenerEmpresas();
@@ -48,18 +42,14 @@ const Auditoria = () => {
   useEffect(() => {
     const obtenerSucursales = async () => {
       if (empresaSeleccionada) {
-        try {
-          const sucursalesCollection = collection(db, "sucursales");
-          const q = query(sucursalesCollection, where("empresa", "==", empresaSeleccionada));
-          const snapshot = await getDocs(q);
-          const sucursalesData = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            nombre: doc.data().nombre,
-          }));
-          setSucursales(sucursalesData);
-        } catch (error) {
-          console.error("Error al obtener sucursales:", error);
-        }
+        const sucursalesCollection = collection(db, "sucursales");
+        const q = query(sucursalesCollection, where("empresa", "==", empresaSeleccionada));
+        const snapshot = await getDocs(q);
+        const sucursalesData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          nombre: doc.data().nombre,
+        }));
+        setSucursales(sucursalesData);
       } else {
         setSucursales([]);
       }
@@ -70,22 +60,23 @@ const Auditoria = () => {
 
   const handleEmpresaChange = (e) => {
     setEmpresaSeleccionada(e.target.value);
+    setSucursalSeleccionada("");
+  };
+
+  const handleSucursalChange = (e) => {
+    setSucursalSeleccionada(e.target.value);
   };
 
   useEffect(() => {
     const obtenerFormularios = async () => {
-      try {
-        const formulariosCollection = collection(db, "formularios");
-        const snapshot = await getDocs(formulariosCollection);
-        const formulariosData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          nombre: doc.data().nombre,
-          secciones: doc.data().secciones,
-        }));
-        setFormularios(formulariosData);
-      } catch (error) {
-        console.error("Error al obtener formularios:", error);
-      }
+      const formulariosCollection = collection(db, "formularios");
+      const snapshot = await getDocs(formulariosCollection);
+      const formulariosData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        nombre: doc.data().nombre,
+        secciones: doc.data().secciones,
+      }));
+      setFormularios(formulariosData);
     };
 
     obtenerFormularios();
@@ -97,6 +88,21 @@ const Auditoria = () => {
     setFormularioSeleccionadoId(idFormularioSeleccionado);
     setFormularioSeleccionadoNombre(formularioSeleccionado.nombre);
     setSecciones(formularioSeleccionado.secciones);
+    setRespuestas(Array(formularioSeleccionado.secciones.length).fill(Array(formularioSeleccionado.secciones[0].preguntas.length).fill('')));
+  };
+
+  const handleGuardarRespuestas = (nuevasRespuestas) => {
+    setRespuestas(nuevasRespuestas);
+  };
+
+  const handleGuardarComentario = (comentario, seccionIndex, preguntaIndex) => {
+    const nuevasRespuestas = [...respuestas];
+    nuevasRespuestas[seccionIndex][preguntaIndex] = comentario;
+    setRespuestas(nuevasRespuestas);
+  };
+
+  const generarReporte = () => {
+    setMostrarReporte(true);
   };
 
   return (
@@ -124,7 +130,7 @@ const Auditoria = () => {
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <InputLabel>Sucursal</InputLabel>
-              <Select>
+              <Select value={sucursalSeleccionada} onChange={handleSucursalChange}>
                 <MenuItem value="">
                   <em>Seleccione una sucursal</em>
                 </MenuItem>
@@ -157,9 +163,27 @@ const Auditoria = () => {
         </Grid>
       </Grid>
 
-      {formularioSeleccionadoId && <PreguntasYSeccion secciones={secciones} />}
+      {formularioSeleccionadoId && (
+        <PreguntasYSeccion
+          secciones={secciones}
+          guardarRespuestas={handleGuardarRespuestas}
+          guardarComentario={handleGuardarComentario} // Asegúrate de pasar esta función
+        />
+      )}
+
+      <Button variant="contained" color="primary" onClick={generarReporte} disabled={!formularioSeleccionadoId}>
+        Generar Reporte
+      </Button>
+
+      {mostrarReporte && (
+        <Reporte 
+          empresa={empresaSeleccionada} 
+          sucursal={sucursalSeleccionada} 
+          respuestas={respuestas} 
+          secciones={secciones} 
+        />
+      )}
     </div>
-    
   );
 };
 

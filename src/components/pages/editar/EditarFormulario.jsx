@@ -1,134 +1,99 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { db } from "../../../firebaseConfig";
-import { collection, getDocs, updateDoc, doc, getDoc } from "firebase/firestore";
-import SelectorFormulario from "./SelectorFormulario";
-import SeccionesYPreguntas from "./SeccionesYPreguntas";
-import TituloFormulario from "./TituloFormulario";
-import { Modal, TextField, Button } from "@mui/material";
-import Editar from "./Editar";
+import { collection, getDocs, doc, getDoc, updateDoc } from "firebase/firestore";
+import EditarPreguntas from "./EditarPreguntas";
+import { FormControl, InputLabel, Select, MenuItem, Typography } from "@mui/material";
 
 const EditarFormulario = () => {
   const [formularios, setFormularios] = useState([]);
-  const [formularioSeleccionadoId, setFormularioSeleccionadoId] = useState("");
-  const [formularioSeleccionadoNombre, setFormularioSeleccionadoNombre] = useState("");
-  const [secciones, setSecciones] = useState([]);
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [preguntaActual, setPreguntaActual] = useState("");
-  const [seccionIndex, setSeccionIndex] = useState(null);
-  const [preguntaIndex, setPreguntaIndex] = useState(null);
+  const [formularioSeleccionado, setFormularioSeleccionado] = useState(null);
+  const [preguntasFormulario, setPreguntasFormulario] = useState([]);
+
+  const obtenerFormularios = async () => {
+    try {
+      const formulariosCollection = collection(db, "formularios");
+      const res = await getDocs(formulariosCollection);
+      const newArr = res.docs.map((formulario) => {
+        return { ...formulario.data(), id: formulario.id };
+      });
+      setFormularios(newArr);
+    } catch (error) {
+      console.error("Error al obtener formularios:", error);
+    }
+  };
 
   useEffect(() => {
-    const obtenerFormularios = async () => {
-      try {
-        const formulariosCollection = collection(db, "formularios");
-        const snapshot = await getDocs(formulariosCollection);
-        const formulariosData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          nombre: doc.data().nombre,
-          secciones: doc.data().secciones,
-        }));
-        setFormularios(formulariosData);
-      } catch (error) {
-        console.error("Error al obtener formularios:", error);
-      }
-    };
-
     obtenerFormularios();
   }, []);
 
-  const handleSeleccionarFormulario = (e) => {
-    const idFormularioSeleccionado = e.target.value;
-    const formularioSeleccionado = formularios.find((formulario) => formulario.id === idFormularioSeleccionado);
-    setFormularioSeleccionadoId(idFormularioSeleccionado);
-    setFormularioSeleccionadoNombre(formularioSeleccionado.nombre);
-    setSecciones(formularioSeleccionado.secciones);
-  };
+  useEffect(() => {
+    const obtenerPreguntasFormulario = async () => {
+      if (formularioSeleccionado) {
+        try {
+          const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
+          const formularioDoc = await getDoc(formularioRef);
+          const formularioData = formularioDoc.data();
+          if (formularioData && formularioData.secciones) {
+            const preguntasData = Object.values(formularioData.secciones).flatMap((seccion) =>
+              seccion.preguntas.map((pregunta, index) => ({
+                seccionId: seccion.nombre,
+                index,
+                texto: pregunta
+              }))
+            );
+            setPreguntasFormulario(preguntasData);
+          } else {
+            setPreguntasFormulario([]);
+          }
+        } catch (error) {
+          console.error("Error al obtener preguntas del formulario:", error);
+        }
+      }
+    };
 
-  const handleBorrarPregunta = async (seccionIndex, preguntaIndex) => {
-    try {
-      const formularioRef = doc(db, "formularios", formularioSeleccionadoId);
-      const formularioSnap = await getDoc(formularioRef);
-      const formularioData = formularioSnap.data();
-      const nuevasPreguntas = formularioData.secciones[seccionIndex].preguntas.filter((_, index) => index !== preguntaIndex);
-      formularioData.secciones[seccionIndex].preguntas = nuevasPreguntas;
-      await updateDoc(formularioRef, formularioData);
-      console.log(`Borrando pregunta ${preguntaIndex} de la sección ${seccionIndex}`);
-    } catch (error) {
-      console.error("Error al borrar pregunta:", error);
-    }
-  };
+    obtenerPreguntasFormulario();
+  }, [formularioSeleccionado]);
 
-  const handleAbrirModalEditar = (seccionIndex, preguntaIndex, pregunta) => {
-    setSeccionIndex(seccionIndex);
-    setPreguntaIndex(preguntaIndex);
-    setPreguntaActual(pregunta);
-    setModalAbierto(true);
-  };
-
-  const handleCloseModalEditar = () => {
-    setModalAbierto(false);
-  };
-
-  const handleGuardarCambiosPregunta = async (nuevaPregunta) => {
-    try {
-      const formularioRef = doc(db, "formularios", formularioSeleccionadoId);
-      const formularioSnap = await getDoc(formularioRef);
-      const formularioData = formularioSnap.data();
-      formularioData.secciones[seccionIndex].preguntas[preguntaIndex] = nuevaPregunta;
-      await updateDoc(formularioRef, { secciones: formularioData.secciones });
-      console.log(`Guardando cambios en la pregunta ${preguntaIndex} de la sección ${seccionIndex}`);
-      handleCloseModalEditar();
-    } catch (error) {
-      console.error("Error al guardar cambios en la pregunta:", error);
-    }
+  const handleChangeFormulario = (event) => {
+    const formularioId = event.target.value;
+    const formularioSeleccionado = formularios.find((formulario) => formulario.id === formularioId);
+    setFormularioSeleccionado(formularioSeleccionado);
   };
 
   return (
     <div>
-      <TituloFormulario />
-      <SelectorFormulario
-        formularios={formularios}
-        formularioSeleccionadoId={formularioSeleccionadoId}
-        handleSeleccionarFormulario={handleSeleccionarFormulario}
-      />
-      <SeccionesYPreguntas
-        secciones={secciones}
-        handleBorrarPregunta={handleBorrarPregunta}
-        handleAbrirModalEditar={handleAbrirModalEditar}
-      />
-
-      {/* Modal para editar pregunta */}
-      <Modal
-        open={modalAbierto}
-        onClose={handleCloseModalEditar}
-        aria-labelledby="modal-title"
-        aria-describedby="modal-description"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: 8,
-          padding: 16,
-          maxWidth: 400,
-          width: '100%'
-        }}>
-          <Editar
-          
-           preguntaActual={preguntaActual}
-           handleClose={handleCloseModalEditar}
-           handleGuardar={handleGuardarCambiosPregunta} // Pasamos la función handleGuardarCambiosPregunta como prop
-           open={modalAbierto}
-         
+      <Typography variant="h4">Selecciona un formulario</Typography>
+      <FormControl fullWidth variant="outlined" margin="normal">
+        <InputLabel id="select-formulario-label">Formulario</InputLabel>
+        <Select
+          labelId="select-formulario-label"
+          id="select-formulario"
+          value={formularioSeleccionado ? formularioSeleccionado.id : ""}
+          onChange={handleChangeFormulario}
+          onOpen={obtenerFormularios}
+          label="Formulario"
+        >
+          {formularios.map((formulario) => (
+            <MenuItem key={formulario.id} value={formulario.id}>
+              {formulario.nombre}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <div>
+        {formularioSeleccionado && (
+          <EditarPreguntas
+            preguntas={preguntasFormulario}
+            setPreguntas={setPreguntasFormulario}
+            formularios={formularios}
+            setFormularios={setFormularios}
+            formularioSeleccionado={formularioSeleccionado}
+            setFormularioSeleccionado={setFormularioSeleccionado}
           />
-        </div>
-      </Modal>
+        )}
+      </div>
     </div>
   );
 };
 
 export default EditarFormulario;
-

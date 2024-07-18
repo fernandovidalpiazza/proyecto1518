@@ -1,0 +1,19 @@
+/* informe.css */
+.reporte-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Ajusta la altura según tus necesidades */
+  }
+  
+  .reporte-content {
+    text-align: center; /* Centra el texto horizontalmente */
+    /* Agrega estilos adicionales según sea necesario */
+  }
+  
+  .grafico-container {
+    margin-top: 20px; /* Ajusta el margen según tus necesidades */
+    display: flex;
+    justify-content: center;
+  }
+  
