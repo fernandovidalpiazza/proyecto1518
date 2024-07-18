@@ -44,7 +44,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
         index === currentSeccionIndex ? [...coment.slice(0, currentPreguntaIndex), comentario, ...coment.slice(currentPreguntaIndex + 1)] : coment
       );
       setComentarios(nuevosComentarios);
-      guardarComentario(comentario, currentSeccionIndex, currentPreguntaIndex);
+      guardarComentario(nuevosComentarios); // Guardar todos los comentarios
       setModalAbierto(false);
       setComentario("");
     }
@@ -53,12 +53,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
   const handleOpenModal = (seccionIndex, preguntaIndex) => {
     setCurrentSeccionIndex(seccionIndex);
     setCurrentPreguntaIndex(preguntaIndex);
-
-    // Actualiza el comentario con el valor actual si no hay una respuesta seleccionada
-    if (!isRespuestaSelected(seccionIndex, preguntaIndex)) {
-      setComentario(comentarios[seccionIndex][preguntaIndex] || "");
-    }
-
+    setComentario(comentarios[seccionIndex][preguntaIndex] || "");
     setModalAbierto(true);
   };
 
@@ -68,7 +63,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
   };
 
   const isRespuestaSelected = (seccionIndex, preguntaIndex) => {
-    return respuestas[seccionIndex]?.[preguntaIndex] !== undefined;
+    return respuestas[seccionIndex]?.[preguntaIndex] !== '';
   };
 
   if (!Array.isArray(secciones)) {
@@ -104,19 +99,10 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
                       Comentario
                     </Button>
                   </Grid>
-                  {!isRespuestaSelected(seccionIndex, preguntaIndex) && (
-                    <Grid item>
-                      <Typography variant="caption" color="error">
-                        Debe seleccionar una respuesta o agregar un comentario.
-                      </Typography>
-                    </Grid>
-                  )}
                   {/* Mostrar el comentario asociado a esta pregunta */}
                   <Grid item>
                     <Typography>
-                      {comentarios[seccionIndex]?.[preguntaIndex] !== undefined
-                        ? comentarios[seccionIndex][preguntaIndex]
-                        : "Sin comentario"}
+                      {comentarios[seccionIndex]?.[preguntaIndex] || "Sin comentario"}
                     </Typography>
                   </Grid>
                 </Grid>

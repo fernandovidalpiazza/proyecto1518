@@ -23,6 +23,7 @@ const Auditoria = () => {
   const [formularioSeleccionadoNombre, setFormularioSeleccionadoNombre] = useState("");
   const [secciones, setSecciones] = useState([]);
   const [respuestas, setRespuestas] = useState([]);
+  const [comentarios, setComentarios] = useState([]);
   const [mostrarReporte, setMostrarReporte] = useState(false);
 
   useEffect(() => {
@@ -88,17 +89,16 @@ const Auditoria = () => {
     setFormularioSeleccionadoId(idFormularioSeleccionado);
     setFormularioSeleccionadoNombre(formularioSeleccionado.nombre);
     setSecciones(formularioSeleccionado.secciones);
-    setRespuestas(Array(formularioSeleccionado.secciones.length).fill(Array(formularioSeleccionado.secciones[0].preguntas.length).fill('')));
+    setRespuestas(formularioSeleccionado.secciones.map(seccion => Array(seccion.preguntas.length).fill('')));
+    setComentarios(formularioSeleccionado.secciones.map(seccion => Array(seccion.preguntas.length).fill('')));
   };
 
   const handleGuardarRespuestas = (nuevasRespuestas) => {
     setRespuestas(nuevasRespuestas);
   };
 
-  const handleGuardarComentario = (comentario, seccionIndex, preguntaIndex) => {
-    const nuevasRespuestas = [...respuestas];
-    nuevasRespuestas[seccionIndex][preguntaIndex] = comentario;
-    setRespuestas(nuevasRespuestas);
+  const handleGuardarComentario = (nuevosComentarios) => {
+    setComentarios(nuevosComentarios);
   };
 
   const generarReporte = () => {
@@ -168,6 +168,8 @@ const Auditoria = () => {
           secciones={secciones}
           guardarRespuestas={handleGuardarRespuestas}
           guardarComentario={handleGuardarComentario} // Asegúrate de pasar esta función
+          respuestas={respuestas} // Pasar respuestas iniciales
+          comentarios={comentarios} // Pasar comentarios iniciales
         />
       )}
 
