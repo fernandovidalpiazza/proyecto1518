@@ -86,19 +86,40 @@ const Auditoria = () => {
   const handleSeleccionarFormulario = (e) => {
     const idFormularioSeleccionado = e.target.value;
     const formularioSeleccionado = formularios.find((formulario) => formulario.id === idFormularioSeleccionado);
+
+    if (!formularioSeleccionado || !formularioSeleccionado.secciones) {
+      console.error("El formulario seleccionado no tiene secciones válidas:", formularioSeleccionado);
+      setSecciones([]);
+      setRespuestas([]);
+      setComentarios([]);
+      return;
+    }
+
+    const seccionesArray = Array.isArray(formularioSeleccionado.secciones)
+      ? formularioSeleccionado.secciones
+      : Object.values(formularioSeleccionado.secciones);
+
     setFormularioSeleccionadoId(idFormularioSeleccionado);
     setFormularioSeleccionadoNombre(formularioSeleccionado.nombre);
-    setSecciones(formularioSeleccionado.secciones);
-    setRespuestas(formularioSeleccionado.secciones.map(seccion => Array(seccion.preguntas.length).fill('')));
-    setComentarios(formularioSeleccionado.secciones.map(seccion => Array(seccion.preguntas.length).fill('')));
+    setSecciones(seccionesArray);
+    setRespuestas(seccionesArray.map(seccion => Array(seccion.preguntas.length).fill('')));
+    setComentarios(seccionesArray.map(seccion => Array(seccion.preguntas.length).fill('')));
   };
 
   const handleGuardarRespuestas = (nuevasRespuestas) => {
     setRespuestas(nuevasRespuestas);
   };
 
-  const handleGuardarComentario = (nuevosComentarios) => {
-    setComentarios(nuevosComentarios);
+  const handleGuardarComentario = (comentario, seccionIndex, preguntaIndex) => {
+    const nuevasRespuestas = [...respuestas];
+
+    // Asegurarse de que nuevasRespuestas[seccionIndex] existe
+    if (!nuevasRespuestas[seccionIndex]) {
+      nuevasRespuestas[seccionIndex] = [];
+    }
+
+    nuevasRespuestas[seccionIndex][preguntaIndex] = comentario;
+    setRespuestas(nuevasRespuestas);
   };
 
   const generarReporte = () => {
@@ -167,9 +188,7 @@ const Auditoria = () => {
         <PreguntasYSeccion
           secciones={secciones}
           guardarRespuestas={handleGuardarRespuestas}
-          guardarComentario={handleGuardarComentario} // Asegúrate de pasar esta función
-          respuestas={respuestas} // Pasar respuestas iniciales
-          comentarios={comentarios} // Pasar comentarios iniciales
+          guardarComentario={handleGuardarComentario}
         />
       )}
 
