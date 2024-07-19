@@ -1,4 +1,4 @@
-import React from "react";
+
 import {
   PieChart,
   Pie,
@@ -6,6 +6,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Label,
 } from "recharts";
 import {
   Grid,
@@ -22,10 +23,10 @@ import {
 const respuestasPosibles = ["Conforme", "No conforme", "Necesita mejora", "No aplica"];
 
 const colors = {
-  "Conforme": "#82ca9d", // Verde
-  "No conforme": "#ff4d4d", // Rojo
-  "Necesita mejora": "#ffcc00", // Amarillo
-  "No aplica": "#00bcd4", // Turquesa
+  "Conforme": "#82ca9d",
+  "No conforme": "#ff4d4d",
+  "Necesita mejora": "#ffcc00",
+  "No aplica": "#00bcd4",
 };
 
 const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [], secciones }) => {
@@ -59,6 +60,9 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
 
   // Calcular el total de respuestas
   const totalRespuestas = respuestas.flat().length;
+
+  // Función para calcular el porcentaje
+  const calcularPorcentaje = (valor, total) => ((valor / total) * 100).toFixed(2);
 
   return (
     <div>
@@ -97,7 +101,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
                 nameKey="name"
                 outerRadius={120}
                 fill="#8884d8"
-                label
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(2)}%`}
               >
                 {Object.keys(estadisticas).map((key, index) => (
                   <Cell key={`cell-${index}`} fill={colors[key] || "#8884d8"} />
@@ -121,7 +125,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
                 nameKey="name"
                 outerRadius={120}
                 fill="#8884d8"
-                label
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(2)}%`}
               >
                 {Object.keys(estadisticasSinNoAplica).map((key, index) => (
                   <Cell key={`cell-${index}`} fill={colors[key] || "#8884d8"} />
@@ -155,13 +159,18 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
                       <TableCell>{respuestas[seccionIndex]?.[preguntaIndex] || "No respondido"}</TableCell>
                       <TableCell>{comentarios[seccionIndex]?.[preguntaIndex] || "Sin comentario"}</TableCell>
                       <TableCell>
-                        {imagenes[seccionIndex]?.[preguntaIndex] && (
-                          <img
-                            src={URL.createObjectURL(imagenes[seccionIndex][preguntaIndex])}
-                            alt={`Imagen de la pregunta ${preguntaIndex}`}
-                            style={{ maxWidth: '100px', maxHeight: '100px' }}
-                          />
-                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          {imagenes[seccionIndex]?.[preguntaIndex] && (
+                            <>
+                              <img
+                                src={URL.createObjectURL(imagenes[seccionIndex][preguntaIndex])}
+                                alt={`Imagen de la pregunta ${preguntaIndex}`}
+                                style={{ maxWidth: '500px', maxHeight: '1000px', marginBottom: '8px' }}
+                              />
+                              <Typography variant="caption">Imagen de la pregunta {preguntaIndex + 1}</Typography>
+                            </>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
