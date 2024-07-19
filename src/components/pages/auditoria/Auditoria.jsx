@@ -24,6 +24,7 @@ const Auditoria = () => {
   const [secciones, setSecciones] = useState([]);
   const [respuestas, setRespuestas] = useState([]);
   const [comentarios, setComentarios] = useState([]);
+  const [imagenes, setImagenes] = useState([]);
   const [mostrarReporte, setMostrarReporte] = useState(false);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ const Auditoria = () => {
   const handleEmpresaChange = (e) => {
     setEmpresaSeleccionada(e.target.value);
     setSucursalSeleccionada("");
+    setSucursales([]);  // Reset sucursales when empresa changes
   };
 
   const handleSucursalChange = (e) => {
@@ -104,22 +106,19 @@ const Auditoria = () => {
     setSecciones(seccionesArray);
     setRespuestas(seccionesArray.map(seccion => Array(seccion.preguntas.length).fill('')));
     setComentarios(seccionesArray.map(seccion => Array(seccion.preguntas.length).fill('')));
+    setImagenes(seccionesArray.map(seccion => Array(seccion.preguntas.length).fill(null)));
   };
 
   const handleGuardarRespuestas = (nuevasRespuestas) => {
     setRespuestas(nuevasRespuestas);
   };
 
-  const handleGuardarComentario = (comentario, seccionIndex, preguntaIndex) => {
-    const nuevasRespuestas = [...respuestas];
+  const handleGuardarComentario = (nuevosComentarios) => {
+    setComentarios(nuevosComentarios);
+  };
 
-    // Asegurarse de que nuevasRespuestas[seccionIndex] existe
-    if (!nuevasRespuestas[seccionIndex]) {
-      nuevasRespuestas[seccionIndex] = [];
-    }
-
-    nuevasRespuestas[seccionIndex][preguntaIndex] = comentario;
-    setRespuestas(nuevasRespuestas);
+  const handleGuardarImagenes = (nuevasImagenes) => {
+    setImagenes(nuevasImagenes);
   };
 
   const generarReporte = () => {
@@ -189,6 +188,7 @@ const Auditoria = () => {
           secciones={secciones}
           guardarRespuestas={handleGuardarRespuestas}
           guardarComentario={handleGuardarComentario}
+          guardarImagenes={handleGuardarImagenes}
         />
       )}
 
@@ -201,6 +201,8 @@ const Auditoria = () => {
           empresa={empresaSeleccionada} 
           sucursal={sucursalSeleccionada} 
           respuestas={respuestas} 
+          comentarios={comentarios}
+          imagenes={imagenes}
           secciones={secciones} 
         />
       )}

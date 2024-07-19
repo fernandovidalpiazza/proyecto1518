@@ -3,7 +3,7 @@ import { Button, Grid, Modal, TextField, Typography, Box } from "@mui/material";
 
 const respuestasPosibles = ["Conforme", "No conforme", "Necesita mejora", "No aplica"];
 
-const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, guardarComentario }) => {
+const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, guardarComentario, guardarImagenes }) => {
   const [respuestas, setRespuestas] = useState([]);
   const [comentarios, setComentarios] = useState([]);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -11,6 +11,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
   const [currentSeccionIndex, setCurrentSeccionIndex] = useState(null);
   const [currentPreguntaIndex, setCurrentPreguntaIndex] = useState(null);
   const [initialized, setInitialized] = useState(false);
+  const [imagenes, setImagenes] = useState([]); // Estado para las imágenes
 
   const secciones = Object.values(seccionesObj);
 
@@ -21,6 +22,9 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
 
       const newComentarios = secciones.map(seccion => Array(seccion.preguntas.length).fill(''));
       setComentarios(newComentarios);
+
+      const newImagenes = secciones.map(seccion => Array(seccion.preguntas.length).fill(null)); // Inicializar imágenes
+      setImagenes(newImagenes);
 
       setInitialized(true);
     }
@@ -62,8 +66,15 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
     setComentario("");
   };
 
-  const isRespuestaSelected = (seccionIndex, preguntaIndex) => {
-    return respuestas[seccionIndex]?.[preguntaIndex] !== '';
+  const handleFileChange = (seccionIndex, preguntaIndex, event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const nuevasImagenes = imagenes.map((img, index) =>
+        index === seccionIndex ? [...img.slice(0, preguntaIndex), file, ...img.slice(preguntaIndex + 1)] : img
+      );
+      setImagenes(nuevasImagenes);
+      guardarImagenes(nuevasImagenes);
+    }
   };
 
   if (!Array.isArray(secciones)) {
@@ -98,6 +109,31 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
                     >
                       Comentario
                     </Button>
+                  </Grid>
+                  {/* Botón para cargar imagen */}
+                  <Grid item>
+                    <input
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      id={`upload-button-${seccionIndex}-${preguntaIndex}`}
+                      type="file"
+                      onChange={(e) => handleFileChange(seccionIndex, preguntaIndex, e)}
+                    />
+                    <label htmlFor={`upload-button-${seccionIndex}-${preguntaIndex}`}>
+                      <Button variant="outlined" component="span">
+                        Cargar Foto
+                      </Button>
+                    </label>
+                  </Grid>
+                  {/* Mostrar la imagen subida */}
+                  <Grid item>
+                    {imagenes[seccionIndex]?.[preguntaIndex] && (
+                      <img
+                        src={URL.createObjectURL(imagenes[seccionIndex][preguntaIndex])}
+                        alt={`Imagen de la pregunta ${preguntaIndex}`}
+                        style={{ maxWidth: '100px', maxHeight: '100px' }}
+                      />
+                    )}
                   </Grid>
                   {/* Mostrar el comentario asociado a esta pregunta */}
                   <Grid item>

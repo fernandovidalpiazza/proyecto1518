@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import {
+  Grid,
   Table,
   TableBody,
   TableCell,
@@ -20,7 +21,14 @@ import {
 
 const respuestasPosibles = ["Conforme", "No conforme", "Necesita mejora", "No aplica"];
 
-const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], secciones }) => {
+const colors = {
+  "Conforme": "#82ca9d", // Verde
+  "No conforme": "#ff4d4d", // Rojo
+  "Necesita mejora": "#ffcc00", // Amarillo
+  "No aplica": "#00bcd4", // Turquesa
+};
+
+const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [], secciones }) => {
   if (!respuestas || respuestas.length === 0) {
     return <div>No hay datos de respuestas disponibles.</div>;
   }
@@ -34,8 +42,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], secciones })
     return <div>Secciones no válidas.</div>;
   }
 
-  const totalRespuestas = respuestas.flat().filter(res => respuestasPosibles.includes(res)).length;
-
+  // Estadísticas generales incluyendo "No aplica"
   const estadisticas = {
     Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
     "No conforme": respuestas.flat().filter((res) => res === "No conforme").length,
@@ -43,82 +50,127 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], secciones })
     "No aplica": respuestas.flat().filter((res) => res === "No aplica").length,
   };
 
-  const data = Object.entries(estadisticas).map(([key, value]) => ({
-    name: key,
-    value,
-    porcentaje: ((value / totalRespuestas) * 100).toFixed(2),
-  }));
+  // Estadísticas excluyendo "No aplica"
+  const estadisticasSinNoAplica = {
+    Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
+    "No conforme": respuestas.flat().filter((res) => res === "No conforme").length,
+    "Necesita mejora": respuestas.flat().filter((res) => res === "Necesita mejora").length,
+  };
 
-  const COLORS = ["#0088FE", "#FF8042", "#FFBB28", "#FF5656"];
+  // Calcular el total de respuestas
+  const totalRespuestas = respuestas.flat().length;
 
   return (
     <div>
-      <Typography variant="h2">Reporte de Auditoría</Typography>
-      <Typography variant="h3">Datos de la Empresa</Typography>
-      <Typography>Empresa: {empresa}</Typography>
-      <Typography>Sucursal: {sucursal}</Typography>
-      <Typography variant="h3">Resumen de Respuestas</Typography>
-      <Typography>Total de respuestas: {totalRespuestas}</Typography>
+      {/* Cabecera */}
+      <Typography variant="h2" gutterBottom>
+        Reporte de Auditoría
+      </Typography>
+      <Typography variant="h4" gutterBottom>
+        Datos de la Empresa
+      </Typography>
+      <Typography variant="h6">Empresa: {empresa}</Typography>
+      <Typography variant="h6">Sucursal: {sucursal}</Typography>
+      <Typography variant="h4" gutterBottom>
+        Resumen de Respuestas
+      </Typography>
+      <Typography variant="body1">
+        Total de respuestas: {totalRespuestas}
+      </Typography>
       {Object.entries(estadisticas).map(([key, value]) => (
-        <Typography key={key}>
+        <Typography key={key} variant="body1">
           {key}: {value}
         </Typography>
       ))}
 
-      <Typography variant="h3">Gráfico de Resultados</Typography>
-      <ResponsiveContainer width="100%" height={400}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={({ name, porcentaje }) => `${name} (${porcentaje}%)`}
-            outerRadius={150}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-
-      <Typography variant="h3">Preguntas Respondidas</Typography>
-      {seccionesArray.map((seccion, seccionIndex) => (
-        <div key={seccionIndex}>
-          <Typography variant="h4">
-            Sección {seccionIndex + 1}: {seccion.nombre}
+      <Grid container spacing={2}>
+        {/* Columna para gráficos */}
+        <Grid item xs={12} md={6}>
+          <Typography variant="h6" gutterBottom>
+            Estadísticas Generales
           </Typography>
-          <TableContainer component={Paper}>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={Object.keys(estadisticas).map(key => ({ name: key, value: estadisticas[key] }))}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={120}
+                fill="#8884d8"
+                label
+              >
+                {Object.keys(estadisticas).map((key, index) => (
+                  <Cell key={`cell-${index}`} fill={colors[key] || "#8884d8"} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Typography variant="h6" gutterBottom>
+            Estadísticas (Sin "No aplica")
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={Object.keys(estadisticasSinNoAplica).map(key => ({ name: key, value: estadisticasSinNoAplica[key] }))}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={120}
+                fill="#8884d8"
+                label
+              >
+                {Object.keys(estadisticasSinNoAplica).map((key, index) => (
+                  <Cell key={`cell-${index}`} fill={colors[key] || "#8884d8"} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </Grid>
+
+        {/* Columna para tabla de resumen */}
+        <Grid item xs={12}>
+          <TableContainer component={Paper} sx={{ mt: 2 }}>
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell>Sección</TableCell>
                   <TableCell>Pregunta</TableCell>
-                  <TableCell>Resultado</TableCell>
-                  <TableCell>Comentarios</TableCell>
+                  <TableCell>Respuesta</TableCell>
+                  <TableCell>Comentario</TableCell>
+                  <TableCell>Imagen</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {seccion.preguntas.map((pregunta, preguntaIndex) => (
-                  <TableRow key={preguntaIndex}>
-                    <TableCell>{pregunta}</TableCell>
-                    <TableCell>
-                      {respuestas[seccionIndex]?.[preguntaIndex] || "Sin respuesta"}
-                    </TableCell>
-                    <TableCell>
-                      {comentarios[seccionIndex]?.[preguntaIndex] || "Sin comentario"}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {seccionesArray.map((seccion, seccionIndex) =>
+                  seccion.preguntas.map((pregunta, preguntaIndex) => (
+                    <TableRow key={`${seccionIndex}-${preguntaIndex}`}>
+                      <TableCell>{seccion.nombre}</TableCell>
+                      <TableCell>{pregunta}</TableCell>
+                      <TableCell>{respuestas[seccionIndex]?.[preguntaIndex] || "No respondido"}</TableCell>
+                      <TableCell>{comentarios[seccionIndex]?.[preguntaIndex] || "Sin comentario"}</TableCell>
+                      <TableCell>
+                        {imagenes[seccionIndex]?.[preguntaIndex] && (
+                          <img
+                            src={URL.createObjectURL(imagenes[seccionIndex][preguntaIndex])}
+                            alt={`Imagen de la pregunta ${preguntaIndex}`}
+                            style={{ maxWidth: '100px', maxHeight: '100px' }}
+                          />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
-        </div>
-      ))}
+        </Grid>
+      </Grid>
     </div>
   );
 };
