@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Button, Card, CardContent, Grid, IconButton, Typography, Box } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { Link } from "react-router-dom";
 import { db, storage } from "../../../firebaseConfig";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import AddEmpresaModal from "./AddEmpresaModal";
+import EliminarEmpresa from "./EliminarEmpresa";
 import Swal from 'sweetalert2';
 
 const EstablecimientosContainer = () => {
@@ -97,6 +97,10 @@ const EstablecimientosContainer = () => {
     }
   };
 
+  const eliminarEmpresa = () => {
+    obtenerEmpresas(); // Actualiza la lista de empresas después de eliminar una
+  };
+
   return (
     <div>
       <Button
@@ -145,9 +149,10 @@ const EstablecimientosContainer = () => {
                       Agregar sucursal
                     </Button>
                   </Link>
-                  <IconButton color="error" aria-label="Eliminar empresa">
-                    <DeleteIcon />
-                  </IconButton>
+                  <EliminarEmpresa
+                    empresaId={empresa.id}
+                    eliminarEmpresa={eliminarEmpresa}
+                  />
                 </div>
               </CardContent>
             </Card>
