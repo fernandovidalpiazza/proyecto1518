@@ -279,7 +279,7 @@ const EditarSeccionYPreguntas = ({ formularioSeleccionado, setFormularioSeleccio
     <div>
       {/* Sección para editar el formulario */}
       <Button onClick={() => setModalEditarFormularioAbierto(true)}>
-        Editar Formulario
+        Cambiar el nombre al formulario
       </Button>
 
       {/* Botón para eliminar el formulario */}

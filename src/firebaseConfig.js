@@ -8,9 +8,8 @@ import {
 } from "firebase/auth";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {getFirestore} from "firebase/firestore"
-
-
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage"; // Importa getStorage
 
 const firebaseConfig = {
   apiKey: "AIzaSyD7pmD_EVRf0dJcocynpaXAdu3tveycrzg",
@@ -24,6 +23,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app); // Inicializa el almacenamiento
 
 // inicio de sesión
 export const onSignIn = async ({ email, password }) => {
@@ -82,4 +82,4 @@ export const forgotPassword = async (email) => {
   await sendPasswordResetEmail(auth, email);
 };
 
-export { db };
+export { db, storage }; // Exporta el almacenamiento
