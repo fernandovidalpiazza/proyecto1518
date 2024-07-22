@@ -57,6 +57,7 @@ const Formulario = () => {
     <Box>
       <Typography variant="h6" gutterBottom>
         Crear Nuevo Formulario
+        Las pregutas de deberan ingresar una debajo de otra por cada seccion 
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField

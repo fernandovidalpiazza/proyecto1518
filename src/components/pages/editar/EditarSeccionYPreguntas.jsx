@@ -19,259 +19,181 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import AddIcon from "@mui/icons-material/Add";
 import { doc, updateDoc, deleteField, deleteDoc } from "firebase/firestore";
 import { db } from "../../../firebaseConfig";
-
+import Swal from 'sweetalert2';
 const EditarSeccionYPreguntas = ({ formularioSeleccionado, setFormularioSeleccionado }) => {
   const [modalEditarFormularioAbierto, setModalEditarFormularioAbierto] = useState(false);
   const [modalEditarSeccionAbierto, setModalEditarSeccionAbierto] = useState(false);
   const [modalEditarPreguntaAbierto, setModalEditarPreguntaAbierto] = useState(false);
   const [modalAgregarPreguntaAbierto, setModalAgregarPreguntaAbierto] = useState(false);
-  const [nuevoNombreFormulario, setNuevoNombreFormulario] = useState("");
-  const [nuevoNombreSeccion, setNuevoNombreSeccion] = useState("");
-  const [nuevoTextoPregunta, setNuevoTextoPregunta] = useState("");
-  const [nuevaPregunta, setNuevaPregunta] = useState("");
+  const [nuevoNombreFormulario, setNuevoNombreFormulario] = useState('');
+  const [nuevoNombreSeccion, setNuevoNombreSeccion] = useState('');
+  const [nuevoTextoPregunta, setNuevoTextoPregunta] = useState('');
+  const [nuevaPregunta, setNuevaPregunta] = useState('');
   const [seccionSeleccionada, setSeccionSeleccionada] = useState(null);
   const [preguntaSeleccionada, setPreguntaSeleccionada] = useState(null);
 
-  const handleSeleccionarSeccion = (seccion) => {
-    setSeccionSeleccionada(seccion);
-    setNuevoNombreSeccion(seccion.nombre);
-    setModalEditarSeccionAbierto(true);
-  };
-
-  const handleSeleccionarPregunta = (pregunta, seccionId, index) => {
-    setPreguntaSeleccionada({ texto: pregunta, seccionId, index });
-    setNuevoTextoPregunta(pregunta);
-    setModalEditarPreguntaAbierto(true);
-  };
-
   const handleGuardarCambiosFormulario = async () => {
     try {
-      if (!nuevoNombreFormulario) {
-        console.error("Nombre del formulario no proporcionado.");
-        return;
-      }
-
       const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
-      await updateDoc(formularioRef, {
-        nombre: nuevoNombreFormulario
-      });
-
-      const formularioActualizado = {
-        ...formularioSeleccionado,
-        nombre: nuevoNombreFormulario
-      };
-
-      setFormularioSeleccionado(formularioActualizado);
+      await updateDoc(formularioRef, { nombre: nuevoNombreFormulario });
+      setFormularioSeleccionado(prev => ({ ...prev, nombre: nuevoNombreFormulario }));
       setModalEditarFormularioAbierto(false);
+      Swal.fire("Éxito", "Formulario actualizado exitosamente.", "success");
     } catch (error) {
-      console.error("Error al guardar cambios en el formulario:", error);
+      Swal.fire("Error", "Error al actualizar el formulario.", "error");
     }
   };
 
   const handleGuardarCambiosSeccion = async () => {
     try {
       if (!seccionSeleccionada) {
-        console.error("Sección no seleccionada.");
+        Swal.fire("Error", "No se ha seleccionado ninguna sección.", "error");
         return;
       }
-
       const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === seccionSeleccionada.nombre);
-
-      if (seccionIndex === undefined) {
-        console.error("No se encontró la sección con el nombre:", seccionSeleccionada.nombre);
-        return;
-      }
-
+      const seccionesActualizadas = { ...formularioSeleccionado.secciones, [seccionIndex]: { ...formularioSeleccionado.secciones[seccionIndex], nombre: nuevoNombreSeccion } };
       const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
-      await updateDoc(formularioRef, {
-        [`secciones.${seccionIndex}.nombre`]: nuevoNombreSeccion,
-      });
-
-      const formularioActualizado = {
-        ...formularioSeleccionado,
-        secciones: {
-          ...formularioSeleccionado.secciones,
-          [seccionIndex]: {
-            ...formularioSeleccionado.secciones[seccionIndex],
-            nombre: nuevoNombreSeccion,
-          },
-        },
-      };
-
-      setFormularioSeleccionado(formularioActualizado);
+      await updateDoc(formularioRef, { secciones: seccionesActualizadas });
+      setFormularioSeleccionado(prev => ({ ...prev, secciones: seccionesActualizadas }));
       setModalEditarSeccionAbierto(false);
+      Swal.fire("Éxito", "Sección actualizada exitosamente.", "success");
     } catch (error) {
-      console.error("Error al guardar cambios en la sección:", error);
+      Swal.fire("Error", "Error al actualizar la sección.", "error");
     }
   };
 
   const handleGuardarCambiosPregunta = async () => {
     try {
-      if (!preguntaSeleccionada || !seccionSeleccionada) {
-        console.error("Pregunta o sección no seleccionada.");
+      if (!preguntaSeleccionada) {
+        Swal.fire("Error", "No se ha seleccionado ninguna pregunta.", "error");
         return;
       }
-
-      const { seccionId, index } = preguntaSeleccionada;
-      const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === seccionId);
-
-      if (seccionIndex === undefined) {
-        console.error("No se encontró la sección con el nombre:", seccionId);
-        return;
-      }
-
-      const preguntasActualizadas = [...formularioSeleccionado.secciones[seccionIndex].preguntas];
-      preguntasActualizadas[index] = nuevoTextoPregunta;
-
+      const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === preguntaSeleccionada.seccionNombre);
+      const preguntasActualizadas = formularioSeleccionado.secciones[seccionIndex].preguntas.map((pregunta, index) => index === preguntaSeleccionada.index ? nuevoTextoPregunta : pregunta);
       const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
-      await updateDoc(formularioRef, {
-        [`secciones.${seccionIndex}.preguntas`]: preguntasActualizadas,
-      });
-
-      const formularioActualizado = {
-        ...formularioSeleccionado,
+      await updateDoc(formularioRef, { [`secciones.${seccionIndex}.preguntas`]: preguntasActualizadas });
+      setFormularioSeleccionado(prev => ({
+        ...prev,
         secciones: {
-          ...formularioSeleccionado.secciones,
+          ...prev.secciones,
           [seccionIndex]: {
-            ...formularioSeleccionado.secciones[seccionIndex],
+            ...prev.secciones[seccionIndex],
             preguntas: preguntasActualizadas,
           },
         },
-      };
-
-      setFormularioSeleccionado(formularioActualizado);
+      }));
       setModalEditarPreguntaAbierto(false);
+      Swal.fire("Éxito", "Pregunta actualizada exitosamente.", "success");
     } catch (error) {
-      console.error("Error al guardar cambios en la pregunta:", error);
-    }
-  };
-
-  const handleEliminarPregunta = async (index, seccionId) => {
-    try {
-      if (!seccionId) {
-        console.error("ID de sección no proporcionado.");
-        return;
-      }
-
-      const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === seccionId);
-
-      if (seccionIndex === undefined) {
-        console.error("No se encontró la sección con el nombre:", seccionId);
-        return;
-      }
-
-      const preguntasActualizadas = formularioSeleccionado.secciones[seccionIndex].preguntas.filter(
-        (preg, idx) => idx !== index
-      );
-
-      const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
-      await updateDoc(formularioRef, {
-        [`secciones.${seccionIndex}.preguntas`]: preguntasActualizadas,
-      });
-
-      const formularioActualizado = {
-        ...formularioSeleccionado,
-        secciones: {
-          ...formularioSeleccionado.secciones,
-          [seccionIndex]: {
-            ...formularioSeleccionado.secciones[seccionIndex],
-            preguntas: preguntasActualizadas,
-          },
-        },
-      };
-
-      setFormularioSeleccionado(formularioActualizado);
-    } catch (error) {
-      console.error("Error al eliminar pregunta:", error);
-    }
-  };
-
-  const handleEliminarSeccion = async (nombreSeccion) => {
-    try {
-      if (!nombreSeccion) {
-        console.error("Nombre de sección no proporcionado.");
-        return;
-      }
-
-      const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === nombreSeccion);
-
-      if (seccionIndex === undefined) {
-        console.error("No se encontró la sección con el nombre:", nombreSeccion);
-        return;
-      }
-
-      const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
-      await updateDoc(formularioRef, {
-        [`secciones.${seccionIndex}`]: deleteField()
-      });
-
-      const formularioActualizado = {
-        ...formularioSeleccionado,
-        secciones: Object.keys(formularioSeleccionado.secciones).reduce((acc, key) => {
-          if (key !== seccionIndex) {
-            acc[key] = formularioSeleccionado.secciones[key];
-          }
-          return acc;
-        }, {})
-      };
-
-      setFormularioSeleccionado(formularioActualizado);
-    } catch (error) {
-      console.error("Error al eliminar sección:", error);
-    }
-  };
-
-  const handleEliminarFormulario = async () => {
-    try {
-      const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
-      await deleteDoc(formularioRef);
-
-      setFormularioSeleccionado(null);
-    } catch (error) {
-      console.error("Error al eliminar formulario:", error);
+      Swal.fire("Error", "Error al actualizar la pregunta.", "error");
     }
   };
 
   const handleAgregarPregunta = async () => {
     try {
-      if (!seccionSeleccionada || !nuevaPregunta) {
-        console.error("Sección no seleccionada o nueva pregunta vacía.");
+      if (!seccionSeleccionada) {
+        Swal.fire("Error", "Sección no proporcionada.", "error");
         return;
       }
-
       const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === seccionSeleccionada.nombre);
-
-      if (seccionIndex === undefined) {
-        console.error("No se encontró la sección con el nombre:", seccionSeleccionada.nombre);
-        return;
-      }
-
-      const preguntasActualizadas = [
-        ...formularioSeleccionado.secciones[seccionIndex].preguntas,
-        nuevaPregunta
-      ];
-
+      const preguntasActualizadas = [...formularioSeleccionado.secciones[seccionIndex].preguntas, nuevaPregunta];
       const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
-      await updateDoc(formularioRef, {
-        [`secciones.${seccionIndex}.preguntas`]: preguntasActualizadas,
-      });
-
-      const formularioActualizado = {
-        ...formularioSeleccionado,
+      await updateDoc(formularioRef, { [`secciones.${seccionIndex}.preguntas`]: preguntasActualizadas });
+      setFormularioSeleccionado(prev => ({
+        ...prev,
         secciones: {
-          ...formularioSeleccionado.secciones,
+          ...prev.secciones,
           [seccionIndex]: {
-            ...formularioSeleccionado.secciones[seccionIndex],
+            ...prev.secciones[seccionIndex],
             preguntas: preguntasActualizadas,
           },
         },
-      };
-
-      setFormularioSeleccionado(formularioActualizado);
+      }));
       setModalAgregarPreguntaAbierto(false);
-      setNuevaPregunta("");
+      Swal.fire("Éxito", "Pregunta agregada exitosamente.", "success");
     } catch (error) {
-      console.error("Error al agregar pregunta:", error);
+      Swal.fire("Error", "Error al agregar pregunta.", "error");
+    }
+  };
+
+  const handleEliminarFormulario = async (id) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás recuperar este formulario!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteDoc(doc(db, "formularios", id));
+        setFormularioSeleccionado(null);
+        Swal.fire("Eliminado", "Formulario eliminado exitosamente.", "success");
+      } catch (error) {
+        Swal.fire("Error", "Error al eliminar el formulario.", "error");
+      }
+    }
+  };
+
+  const handleEliminarSeccion = async (nombreSeccion) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás recuperar esta sección y sus preguntas!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === nombreSeccion);
+        const { [seccionIndex]: _, ...seccionesActualizadas } = formularioSeleccionado.secciones;
+        const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
+        await updateDoc(formularioRef, { secciones: seccionesActualizadas });
+        setFormularioSeleccionado(prev => ({ ...prev, secciones: seccionesActualizadas }));
+        Swal.fire("Eliminado", "Sección eliminada exitosamente.", "success");
+      } catch (error) {
+        Swal.fire("Error", "Error al eliminar la sección.", "error");
+      }
+    }
+  };
+
+  const handleEliminarPregunta = async (indexPregunta, nombreSeccion) => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: "¡No podrás recuperar esta pregunta!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const seccionIndex = Object.keys(formularioSeleccionado.secciones).find(key => formularioSeleccionado.secciones[key].nombre === nombreSeccion);
+        const preguntasActualizadas = formularioSeleccionado.secciones[seccionIndex].preguntas.filter((_, idx) => idx !== indexPregunta);
+        const formularioRef = doc(db, "formularios", formularioSeleccionado.id);
+        await updateDoc(formularioRef, { [`secciones.${seccionIndex}.preguntas`]: preguntasActualizadas });
+        setFormularioSeleccionado(prev => ({
+          ...prev,
+          secciones: {
+            ...prev.secciones,
+            [seccionIndex]: {
+              ...prev.secciones[seccionIndex],
+              preguntas: preguntasActualizadas,
+            },
+          },
+        }));
+        Swal.fire("Eliminado", "Pregunta eliminada exitosamente.", "success");
+      } catch (error) {
+        Swal.fire("Error", "Error al eliminar la pregunta.", "error");
+      }
     }
   };
 
@@ -279,7 +201,7 @@ const EditarSeccionYPreguntas = ({ formularioSeleccionado, setFormularioSeleccio
     <div>
       {/* Sección para editar el formulario */}
       <Button onClick={() => setModalEditarFormularioAbierto(true)}>
-        Cambiar el nombre al formulario
+        Editar Formulario
       </Button>
 
       {/* Botón para eliminar el formulario */}
@@ -298,7 +220,11 @@ const EditarSeccionYPreguntas = ({ formularioSeleccionado, setFormularioSeleccio
       {Object.values(formularioSeleccionado.secciones).map((seccion, seccionIndex) => (
         <div key={seccionIndex}>
           <Typography variant="h5">{seccion.nombre}</Typography>
-          <IconButton onClick={() => handleSeleccionarSeccion(seccion)}>
+          <IconButton onClick={() => {
+            setSeccionSeleccionada(seccion);
+            setNuevoNombreSeccion(seccion.nombre);
+            setModalEditarSeccionAbierto(true);
+          }}>
             <EditIcon color="primary" />
           </IconButton>
           <IconButton onClick={() => handleEliminarSeccion(seccion.nombre)}>
@@ -323,7 +249,11 @@ const EditarSeccionYPreguntas = ({ formularioSeleccionado, setFormularioSeleccio
                   <TableRow key={preguntaIndex} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                     <TableCell align="left">{pregunta}</TableCell>
                     <TableCell align="left">
-                      <IconButton onClick={() => handleSeleccionarPregunta(pregunta, seccion.nombre, preguntaIndex)}>
+                      <IconButton onClick={() => {
+                        setPreguntaSeleccionada({ pregunta, seccionNombre: seccion.nombre, index: preguntaIndex });
+                        setNuevoTextoPregunta(pregunta);
+                        setModalEditarPreguntaAbierto(true);
+                      }}>
                         <EditIcon color="primary" />
                       </IconButton>
                       <IconButton onClick={() => handleEliminarPregunta(preguntaIndex, seccion.nombre)}>
