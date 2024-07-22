@@ -1,4 +1,5 @@
-
+import React from 'react';
+import Firma from './Firma';
 import {
   PieChart,
   Pie,
@@ -6,8 +7,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Label,
-} from "recharts";
+} from 'recharts';
 import {
   Grid,
   Table,
@@ -18,15 +18,16 @@ import {
   TableRow,
   Paper,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 
-const respuestasPosibles = ["Conforme", "No conforme", "Necesita mejora", "No aplica"];
+
+const respuestasPosibles = ['Conforme', 'No conforme', 'Necesita mejora', 'No aplica'];
 
 const colors = {
-  "Conforme": "#82ca9d",
-  "No conforme": "#ff4d4d",
-  "Necesita mejora": "#ffcc00",
-  "No aplica": "#00bcd4",
+  'Conforme': '#82ca9d',
+  'No conforme': '#ff4d4d',
+  'Necesita mejora': '#ffcc00',
+  'No aplica': '#00bcd4',
 };
 
 const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [], secciones }) => {
@@ -39,23 +40,23 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
 
   // Verificación y manejo de secciones
   if (!seccionesArray || !Array.isArray(seccionesArray)) {
-    console.error("Secciones no válidas:", secciones);
+    console.error('Secciones no válidas:', secciones);
     return <div>Secciones no válidas.</div>;
   }
 
-  // Estadísticas generales incluyendo "No aplica"
+  // Estadísticas generales incluyendo 'No aplica'
   const estadisticas = {
-    Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
-    "No conforme": respuestas.flat().filter((res) => res === "No conforme").length,
-    "Necesita mejora": respuestas.flat().filter((res) => res === "Necesita mejora").length,
-    "No aplica": respuestas.flat().filter((res) => res === "No aplica").length,
+    Conforme: respuestas.flat().filter((res) => res === 'Conforme').length,
+    'No conforme': respuestas.flat().filter((res) => res === 'No conforme').length,
+    'Necesita mejora': respuestas.flat().filter((res) => res === 'Necesita mejora').length,
+    'No aplica': respuestas.flat().filter((res) => res === 'No aplica').length,
   };
 
-  // Estadísticas excluyendo "No aplica"
+  // Estadísticas excluyendo 'No aplica'
   const estadisticasSinNoAplica = {
-    Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
-    "No conforme": respuestas.flat().filter((res) => res === "No conforme").length,
-    "Necesita mejora": respuestas.flat().filter((res) => res === "Necesita mejora").length,
+    Conforme: respuestas.flat().filter((res) => res === 'Conforme').length,
+    'No conforme': respuestas.flat().filter((res) => res === 'No conforme').length,
+    'Necesita mejora': respuestas.flat().filter((res) => res === 'Necesita mejora').length,
   };
 
   // Calcular el total de respuestas
@@ -65,7 +66,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
   const calcularPorcentaje = (valor, total) => ((valor / total) * 100).toFixed(2);
 
   return (
-    <div>
+    <div className="reporte-container">
       {/* Cabecera */}
       <Typography variant="h2" gutterBottom>
         Reporte de Auditoría
@@ -104,7 +105,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(2)}%`}
               >
                 {Object.keys(estadisticas).map((key, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[key] || "#8884d8"} />
+                  <Cell key={`cell-${index}`} fill={colors[key] || '#8884d8'} />
                 ))}
               </Pie>
               <Tooltip />
@@ -128,7 +129,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(2)}%`}
               >
                 {Object.keys(estadisticasSinNoAplica).map((key, index) => (
-                  <Cell key={`cell-${index}`} fill={colors[key] || "#8884d8"} />
+                  <Cell key={`cell-${index}`} fill={colors[key] || '#8884d8'} />
                 ))}
               </Pie>
               <Tooltip />
@@ -156,8 +157,8 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
                     <TableRow key={`${seccionIndex}-${preguntaIndex}`}>
                       <TableCell>{seccion.nombre}</TableCell>
                       <TableCell>{pregunta}</TableCell>
-                      <TableCell>{respuestas[seccionIndex]?.[preguntaIndex] || "No respondido"}</TableCell>
-                      <TableCell>{comentarios[seccionIndex]?.[preguntaIndex] || "Sin comentario"}</TableCell>
+                      <TableCell>{respuestas[seccionIndex]?.[preguntaIndex] || 'No respondido'}</TableCell>
+                      <TableCell>{comentarios[seccionIndex]?.[preguntaIndex] || 'Sin comentario'}</TableCell>
                       <TableCell>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                           {imagenes[seccionIndex]?.[preguntaIndex] && (
@@ -178,6 +179,14 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios = [], imagenes = [
               </TableBody>
             </Table>
           </TableContainer>
+        </Grid>
+
+        {/* Espacios para firmas */}
+        <Grid item xs={12} md={6}>
+          <Firma title="Firma del Auditor" />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Firma title="Firma del Responsable de la Empresa" />
         </Grid>
       </Grid>
     </div>

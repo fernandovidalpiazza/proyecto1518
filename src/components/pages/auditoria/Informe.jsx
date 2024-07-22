@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "@mui/material";
 import { Pie } from "react-chartjs-2";
- // Importa el archivo de estilos CSS
+ 
 
 const Informe = ({ empresa, sucursal, respuestas, secciones }) => {
   // Calcula los datos para el gráfico de torta
