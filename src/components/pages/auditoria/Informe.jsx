@@ -44,7 +44,7 @@ const Informe = ({ empresa, sucursal, respuestas, secciones }) => {
     <div className="reporte-container">
       <div className="reporte-content" id="reporte">
         <Typography variant="h5" gutterBottom>
-          Informe de Auditoría
+          Informe de Auditoría 
         </Typography>
         <Typography variant="body1" gutterBottom>
           Empresa: {empresa}

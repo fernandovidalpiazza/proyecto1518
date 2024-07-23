@@ -1,4 +1,3 @@
-// src/components/Reporte.jsx
 import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import ResumenRespuestas from "./ResumenRespuestas";
@@ -58,13 +57,16 @@ const Reporte = ({
 
   return (
     <Box className="reporte-container" ref={targetRef} p={3}>
-      <Typography variant="h2" gutterBottom>
-        Reporte de Auditoría
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h2" gutterBottom>
+          Reporte de Auditoría de Higiene y Seguridad 
+        </Typography>
+        <img src={empresa.logo} alt="Logo de la empresa" style={{ height: '60px' }} />
+      </Box>
       <Typography variant="h4" gutterBottom>
         Datos de la Empresa
       </Typography>
-      <Typography variant="h6">Empresa: {empresa}</Typography>
+      <Typography variant="h6">Empresa: {empresa.nombre}</Typography>
       <Typography variant="h6">Sucursal: {sucursal}</Typography>
       <ResumenRespuestas
         totalRespuestas={totalRespuestas}
@@ -109,7 +111,10 @@ const Reporte = ({
 };
 
 Reporte.propTypes = {
-  empresa: PropTypes.string.isRequired,
+  empresa: PropTypes.shape({
+    nombre: PropTypes.string.isRequired,
+    logo: PropTypes.string.isRequired,
+  }).isRequired,
   sucursal: PropTypes.string.isRequired,
   respuestas: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
   comentarios: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),

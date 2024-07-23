@@ -1,4 +1,3 @@
-// src/components/GenerarPdf.jsx
 import React from 'react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -7,6 +6,7 @@ import { Button } from '@mui/material';
 const GenerarPdf = ({ targetRef }) => {
   const handleGeneratePdf = async () => {
     const element = targetRef.current;
+
     // Estilo para ocultar el botón en el PDF
     const originalStyle = element.style.display;
     const button = element.querySelector(".pdf-button-container");
@@ -26,20 +26,20 @@ const GenerarPdf = ({ targetRef }) => {
     });
 
     // Calcular las dimensiones de la imagen en el PDF
-    const imgWidth = 210; // A4 width in mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Calculate height proportionally
-    const pdfHeight = Math.min(imgHeight, 297); // A4 height in mm
+    const imgWidth = 210; // Ancho de A4 en mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Altura proporcionalmente
+    const pdfHeight = 297; // Altura de A4 en mm
 
     let heightLeft = imgHeight;
     let position = 0;
 
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, pdfHeight);
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
     heightLeft -= pdfHeight;
 
-    while (heightLeft >= 0) {
-      position -= 295; // PDF height minus margin
+    while (heightLeft > 0) {
+      position -= 297;
       pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, pdfHeight);
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
     }
 
@@ -52,9 +52,11 @@ const GenerarPdf = ({ targetRef }) => {
   };
 
   return (
-    <Button variant="contained" color="primary" onClick={handleGeneratePdf}>
-      Generar PDF
-    </Button>
+    <div className="pdf-button-container">
+      <Button variant="contained" color="primary" onClick={handleGeneratePdf}>
+        Generar PDF
+      </Button>
+    </div>
   );
 };
 
