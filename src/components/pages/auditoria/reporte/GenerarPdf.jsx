@@ -61,7 +61,7 @@ const GenerarPdf = ({ targetRef }) => {
   return (
     <div className="pdf-button-container">
       <Button variant="contained" color="primary" onClick={handleGeneratePdf}>
-        Generar archivo en PDF
+        Generar en PDF pc
       </Button>
     </div>
   );
