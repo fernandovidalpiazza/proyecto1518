@@ -16,7 +16,8 @@ const GenerarPdf = ({ targetRef }) => {
     }
 
     const canvas = await html2canvas(element, {
-      scale: 2, // Mejora la calidad de imagen
+      scale: 2, // Mejora la calidad de la imagen
+      useCORS: true // Permite cargar imágenes desde otros dominios
     });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({
@@ -25,22 +26,27 @@ const GenerarPdf = ({ targetRef }) => {
       format: "a4"
     });
 
+    // Dimensiones de la página en mm
+    const pageWidth = 210;
+    const pageHeight = 297;
+
     // Calcular las dimensiones de la imagen en el PDF
-    const imgWidth = 210; // Ancho de A4 en mm
+    const imgWidth = pageWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width; // Altura proporcionalmente
-    const pdfHeight = 297; // Altura de A4 en mm
 
     let heightLeft = imgHeight;
     let position = 0;
 
+    // Agregar la primera página
     pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pdfHeight;
+    heightLeft -= pageHeight;
 
+    // Agregar las páginas adicionales si es necesario
     while (heightLeft > 0) {
-      position -= 297;
+      position -= pageHeight;
       pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
+      heightLeft -= pageHeight;
     }
 
     // Restaurar el estilo original del botón
@@ -48,6 +54,7 @@ const GenerarPdf = ({ targetRef }) => {
       button.style.display = originalStyle;
     }
 
+    // Guardar el PDF
     pdf.save('reporte.pdf');
   };
 
