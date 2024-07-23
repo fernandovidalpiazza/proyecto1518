@@ -2,7 +2,7 @@ import Home from "../components/pages/home/Home";
 import usuarios from "../components/pages/usuarios/Usuarios";
 import EstablecimientosContainer from "../components/pages/establecimiento/EstablecimientosContainer";
 import SucursalContainer from "../components/pages/SucursalContainer.jsx/SucursalContainer";
-import Auditoria from "../components/pages/auditoria/Auditoria";
+import Auditoria from "../components/pages/auditoria/auditoria/Auditoria";
 import Formulario from "../components/pages/formulario/Formulario";
 import EditarFormulario from "../components/pages/editar/EditarFormulario";
 //import Reporte from "../components/pages/auditoria/reporte";

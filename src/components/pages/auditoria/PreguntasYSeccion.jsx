@@ -68,13 +68,11 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
 
   const handleFileChange = (seccionIndex, preguntaIndex, event) => {
     const file = event.target.files[0];
-    if (file) {
-      const nuevasImagenes = imagenes.map((img, index) =>
-        index === seccionIndex ? [...img.slice(0, preguntaIndex), file, ...img.slice(preguntaIndex + 1)] : img
-      );
-      setImagenes(nuevasImagenes);
-      guardarImagenes(nuevasImagenes);
-    }
+    const nuevasImagenes = imagenes.map((img, index) =>
+      index === seccionIndex ? [...img.slice(0, preguntaIndex), file, ...img.slice(preguntaIndex + 1)] : img
+    );
+    setImagenes(nuevasImagenes);
+    guardarImagenes(nuevasImagenes);
   };
 
   if (!Array.isArray(secciones)) {
