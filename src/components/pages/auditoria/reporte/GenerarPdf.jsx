@@ -43,8 +43,8 @@ const GenerarPdf = ({ targetRef }) => {
 
     // Agregar las páginas adicionales si es necesario
     while (heightLeft > 0) {
-      position -= pageHeight;
       pdf.addPage();
+      position -= pageHeight;
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
     }
@@ -61,7 +61,7 @@ const GenerarPdf = ({ targetRef }) => {
   return (
     <div className="pdf-button-container">
       <Button variant="contained" color="primary" onClick={handleGeneratePdf}>
-        Generar archivo en en PDF
+        Generar archivo PDF
       </Button>
     </div>
   );
