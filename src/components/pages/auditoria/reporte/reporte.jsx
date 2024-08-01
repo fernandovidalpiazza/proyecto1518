@@ -1,130 +1,98 @@
-import React, { useRef } from "react";
-import PropTypes from "prop-types";
-import ResumenRespuestas from "./ResumenRespuestas";
-import EstadisticasChart from "./EstadisticasChart";
-import ImagenesTable from "./ImagenesTable";
-import FirmaSection from "./FirmaSection";
-import GenerarPdf from "./GenerarPdf";
-import { Typography, Grid, Box } from "@mui/material";
+import React from "react";
+import { Box, Typography, List, ListItem, ListItemText, Divider, Paper } from "@mui/material";
+//import { Bar } from "react-chartjs-2";
+//import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 
-const Reporte = ({
-  empresa,
-  sucursal,
-  respuestas,
-  comentarios = [],
-  imagenes = [],
-  secciones,
-}) => {
-  const targetRef = useRef();
+// Registrar los componentes necesarios
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-  if (!Array.isArray(respuestas) || respuestas.length === 0) {
-    return <div>No hay datos de respuestas disponibles.</div>;
-  }
+const Reporte = ({ empresa, sucursal, respuestas, comentarios, secciones }) => {
+  const generarEstadisticas = () => {
+    // Lógica para generar estadísticas a partir de las respuestas
+    const conforme = respuestas.flat().filter((r) => r === "Conforme").length;
+    const noConforme = respuestas.flat().filter((r) => r === "No Conforme").length;
+    const necesitaMejora = respuestas.flat().filter((r) => r === "Necesita Mejora").length;
+    const noAplica = respuestas.flat().filter((r) => r === "No Aplica").length;
 
-  const seccionesArray = Array.isArray(secciones)
-    ? secciones
-    : Object.values(secciones);
-
-  if (!seccionesArray || !Array.isArray(seccionesArray)) {
-    console.error("Secciones no válidas:", secciones);
-    return <div>Secciones no válidas.</div>;
-  }
-
-  const estadisticas = {
-    Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
-    "No conforme": respuestas.flat().filter((res) => res === "No conforme")
-      .length,
-    "Necesita mejora": respuestas
-      .flat()
-      .filter((res) => res === "Necesita mejora").length,
-    "No aplica": respuestas.flat().filter((res) => res === "No aplica").length,
+    return {
+      labels: ["Conforme", "No Conforme", "Necesita Mejora", "No Aplica"],
+      datasets: [
+        {
+          label: "Respuestas",
+          data: [conforme, noConforme, necesitaMejora, noAplica],
+          backgroundColor: ["#4caf50", "#f44336", "#ff9800", "#9e9e9e"],
+        },
+      ],
+    };
   };
 
-  const estadisticasSinNoAplica = {
-    Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
-    "No conforme": respuestas.flat().filter((res) => res === "No conforme")
-      .length,
-    "Necesita mejora": respuestas
-      .flat()
-      .filter((res) => res === "Necesita mejora").length,
-  };
-
-  const totalRespuestas = respuestas.flat().length;
-
-  const todasPreguntasContestadas =
-    respuestas.flat().length ===
-    seccionesArray.reduce((acc, seccion) => acc + seccion.preguntas.length, 0);
+  const datosEstadisticos = generarEstadisticas();
 
   return (
-    <Box className="reporte-container" ref={targetRef} p={3}>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h2" gutterBottom>
-          Reporte de Auditoría de Higiene y Seguridad 
-        </Typography>
-        <img src={empresa.logo} alt="Logo de la empresa" style={{ height: '60px' }} />
-      </Box>
+    <Paper style={{ padding: "16px", marginTop: "16px" }}>
       <Typography variant="h4" gutterBottom>
-        Datos de la Empresa
+        Informe de Auditoría
       </Typography>
-      <Typography variant="h6">Empresa: {empresa.nombre}</Typography>
-      <Typography variant="h6">Sucursal: {sucursal}</Typography>
-      <ResumenRespuestas
-        totalRespuestas={totalRespuestas}
-        estadisticas={estadisticas}
-      />
-      <Grid container spacing={3} mt={3}>
-        <Grid item xs={12} md={6}>
-          <EstadisticasChart
-            estadisticas={estadisticas}
-            title="Estadísticas Generales"
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <EstadisticasChart
-            estadisticas={estadisticasSinNoAplica}
-            title='Estadísticas (Sin "No aplica")'
-          />
-        </Grid>
-      </Grid>
-      <Box mt={3}>
-        <ImagenesTable
-          secciones={seccionesArray}
-          respuestas={respuestas}
-          comentarios={comentarios}
-          imagenes={imagenes}
-        />
-      </Box>
-      <Box mt={3}>
-        <FirmaSection />
-      </Box>
-      <Box mt={3} className="pdf-button-container">
-        {todasPreguntasContestadas ? (
-          <GenerarPdf targetRef={targetRef} />
-        ) : (
-          <Typography variant="body1" color="error">
-            Todas las preguntas deben estar contestadas para generar el reporte.
-          </Typography>
-        )}
-      </Box>
-    </Box>
-  );
-};
 
-Reporte.propTypes = {
-  empresa: PropTypes.shape({
-    nombre: PropTypes.string.isRequired,
-    logo: PropTypes.string.isRequired,
-  }).isRequired,
-  sucursal: PropTypes.string.isRequired,
-  respuestas: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  comentarios: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
-  imagenes: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.instanceOf(File))),
-  secciones: PropTypes.arrayOf(
-    PropTypes.shape({
-      nombre: PropTypes.string.isRequired,
-      preguntas: PropTypes.arrayOf(PropTypes.string).isRequired,
-    })
-  ).isRequired,
+      <Typography variant="h6" gutterBottom>
+        Empresa: {empresa.nombre}
+      </Typography>
+      <Typography variant="h6" gutterBottom>
+        Sucursal: {sucursal}
+      </Typography>
+
+      {empresa.logo && (
+        <Box mt={2} mb={4}>
+          <img
+            src={empresa.logo}
+            alt={`Logo de ${empresa.nombre}`}
+            style={{ width: "100px", height: "auto" }}
+          />
+        </Box>
+      )}
+
+      <Typography variant="h5" gutterBottom>
+        Estadísticas de Respuestas
+      </Typography>
+      <Bar data={datosEstadisticos} />
+
+      <Typography variant="h5" gutterBottom mt={4}>
+        Preguntas y Respuestas
+      </Typography>
+      {secciones.map((seccion, indexSeccion) => (
+        <Box key={indexSeccion} mb={4}>
+          <Typography variant="h6" gutterBottom>
+            Sección: {seccion.nombre}
+          </Typography>
+          <List>
+            {seccion.preguntas.map((pregunta, indexPregunta) => (
+              <React.Fragment key={indexPregunta}>
+                <ListItem alignItems="flex-start">
+                  <ListItemText
+                    primary={`Pregunta: ${pregunta}`}
+                    secondary={`Respuesta: ${respuestas[indexSeccion][indexPregunta]}`}
+                  />
+                </ListItem>
+                <ListItem alignItems="flex-start">
+                  <ListItemText
+                    secondary={`Comentario: ${comentarios[indexSeccion][indexPregunta]}`}
+                  />
+                </ListItem>
+                <Divider />
+              </React.Fragment>
+            ))}
+          </List>
+        </Box>
+      ))}
+    </Paper>
+  );
 };
 
 export default Reporte;

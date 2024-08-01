@@ -1,0 +1,43 @@
+/* Reporte.css */
+
+/* Estilos generales para el contenedor del reporte */
+.reporte-container {
+  padding: 24px;
+}
+
+/* Ocultar elementos durante la generación del PDF */
+@media print {
+  .no-print {
+    display: none;
+  }
+}
+
+/* Asegúrate de que los gráficos estén uno al lado del otro y que las firmas estén en su lugar */
+.pdf-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.grupos {
+  display: flex;
+  justify-content: space-between;
+}
+
+.firma-content {
+  width: 1%;
+}
+
+.graficos-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.grafico {
+  flex: 1;
+  margin-right: 8px;
+}
+
+.grafico:last-child {
+  margin-right: 0;
+}

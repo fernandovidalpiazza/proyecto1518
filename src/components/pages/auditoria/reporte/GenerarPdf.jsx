@@ -1,70 +1,187 @@
-import React from 'react';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
-import { Button } from '@mui/material';
+import React, { useState, useEffect, useRef } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./../../../../firebaseConfig";
+import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box } from "@mui/material";
+import ResumenRespuestas from "./ResumenRespuestas";
+import EstadisticasChart from "./EstadisticasChart";
+import FirmaSection from "./FirmaSection";
+import html2pdf from 'html2pdf.js';
+import './ReportesPage.css';
 
-const GenerarPdf = ({ targetRef }) => {
-  const handleGeneratePdf = async () => {
-    const element = targetRef.current;
+const ReportesPage = () => {
+  const [reportes, setReportes] = useState([]);
+  const [selectedReporte, setSelectedReporte] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const detalleRef = useRef();
 
-    // Estilo para ocultar el botón en el PDF
-    const originalStyle = element.style.display;
-    const button = element.querySelector(".pdf-button-container");
+  useEffect(() => {
+    const fetchReportes = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "reportes"));
+        const reportesData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setReportes(reportesData);
+      } catch (error) {
+        setError("Error al obtener reportes: " + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (button) {
-      button.style.display = 'none';
-    }
+    fetchReportes();
+  }, []);
 
-    const canvas = await html2canvas(element, {
-      scale: 2, // Mejora la calidad de la imagen
-      useCORS: true // Permite cargar imágenes desde otros dominios
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4"
-    });
-
-    // Dimensiones de la página en mm
-    const pageWidth = 210;
-    const pageHeight = 297;
-
-    // Calcular las dimensiones de la imagen en el PDF
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Altura proporcionalmente
-
-    let heightLeft = imgHeight;
-    let position = 0;
-
-    // Agregar la primera página
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-
-    // Agregar las páginas adicionales si es necesario
-    while (heightLeft > 0) {
-      pdf.addPage();
-      position -= pageHeight;
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-
-    // Restaurar el estilo original del botón
-    if (button) {
-      button.style.display = originalStyle;
-    }
-
-    // Guardar el PDF
-    pdf.save('reporte.pdf');
+  const handleSelectReporte = (reporte) => {
+    setSelectedReporte(reporte);
   };
 
+  const handleCloseDetalles = () => {
+    setSelectedReporte(null);
+  };
+
+  const handleDownloadPDF = () => {
+    const element = detalleRef.current;
+
+    const opt = {
+      margin: 1,
+      filename: 'detalle_reporte.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().from(element).set(opt).save();
+  };
+
+  if (loading) return <Typography>Cargando reportes...</Typography>;
+  if (error) return <Typography color="error">{error}</Typography>;
+
   return (
-    <div className="pdf-button-container">
-      <Button variant="contained" color="primary" onClick={handleGeneratePdf}>
-        Generar archivo PDF
-      </Button>
-    </div>
+    <Box className="reportes-container" p={3}>
+      {selectedReporte ? (
+        <Box ref={detalleRef}>
+          <Typography variant="h2" gutterBottom>
+            Detalles del Reporte de Auditoría
+          </Typography>
+          <Typography variant="h4" gutterBottom>
+            Empresa: {selectedReporte.empresa?.nombre ?? "Nombre no disponible"}
+          </Typography>
+          <Typography variant="h6">Sucursal: {selectedReporte.sucursal ?? "Sucursal no disponible"}</Typography>
+          <Typography variant="h6">
+            Fecha y Hora de Guardado: {selectedReporte.fechaGuardado ? new Date(selectedReporte.fechaGuardado.seconds * 1000).toLocaleString() : "Fecha no disponible"}
+          </Typography>
+
+          <ResumenRespuestas
+            totalRespuestas={selectedReporte.totalRespuestas ?? 0}
+            estadisticas={selectedReporte.estadisticas ?? {}}
+          />
+
+          <Box display="flex" flexWrap="wrap" justifyContent="space-between" mt={3}>
+            <Box flex={1} minWidth="200px" maxWidth="45%" mb={3}>
+              <FirmaSection />
+            </Box>
+            <Box flex={1} minWidth="200px" maxWidth="45%" mb={3}>
+              <FirmaSection />
+            </Box>
+          </Box>
+
+          <Box display="flex" flexWrap="wrap" justifyContent="space-between" mt={3}>
+            <Box flex={1} minWidth="300px" maxWidth="45%" mb={3}>
+              <EstadisticasChart
+                estadisticas={selectedReporte.estadisticas ?? {}}
+                title="Estadísticas Generales"
+              />
+            </Box>
+            <Box flex={1} minWidth="300px" maxWidth="45%" mb={3}>
+              <EstadisticasChart
+                estadisticas={selectedReporte.estadisticasSinNoAplica ?? {}}
+                title='Estadísticas (Sin "No aplica")'
+              />
+            </Box>
+          </Box>
+
+          <Box mb={3}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Empresa</TableCell>
+                    <TableCell>Logo</TableCell>
+                    <TableCell>Sección</TableCell>
+                    <TableCell>Pregunta</TableCell>
+                    <TableCell>Respuesta</TableCell>
+                    <TableCell>Comentario</TableCell>
+                    <TableCell>Imagen</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedReporte.secciones.flatMap((seccion, index) =>
+                    seccion.preguntas.map((pregunta, idx) => (
+                      <TableRow key={`${selectedReporte.id}-${index}-${idx}`}>
+                        <TableCell>{selectedReporte.empresa.nombre}</TableCell>
+                        <TableCell>
+                          <img src={selectedReporte.empresa.logo} alt="Logo" style={{ width: '50px', height: '50px' }} />
+                        </TableCell>
+                        <TableCell>{seccion.nombre}</TableCell>
+                        <TableCell>{pregunta}</TableCell>
+                        <TableCell>{selectedReporte.respuestas[idx] ?? "Respuesta no disponible"}</TableCell>
+                        <TableCell>{selectedReporte.comentarios[idx] ?? "Comentario no disponible"}</TableCell>
+                        <TableCell>
+                          {selectedReporte.imagenes[idx] ? (
+                            <img src={selectedReporte.imagenes[idx]} alt={`Imagen ${idx}`} style={{ width: '100px', height: 'auto' }} />
+                          ) : (
+                            "Imagen no disponible"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+
+          <Box display="flex" justifyContent="space-between" mt={3}>
+            <Button variant="contained" onClick={handleCloseDetalles}>
+              Cerrar
+            </Button>
+            <Button variant="contained" onClick={handleDownloadPDF}>
+              Descargar PDF
+            </Button>
+          </Box>
+        </Box>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Empresa</TableCell>
+                <TableCell>Sucursal</TableCell>
+                <TableCell>Fecha y Hora</TableCell>
+                <TableCell>Acción</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {reportes.map((reporte) => (
+                <TableRow key={reporte.id}>
+                  <TableCell>{reporte.empresa?.nombre ?? "Nombre no disponible"}</TableCell>
+                  <TableCell>{reporte.sucursal ?? "Sucursal no disponible"}</TableCell>
+                  <TableCell>
+                    {reporte.fechaGuardado ? new Date(reporte.fechaGuardado.seconds * 1000).toLocaleString() : "Fecha no disponible"}
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="contained" onClick={() => handleSelectReporte(reporte)}>
+                      Ver Detalles
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </Box>
   );
 };
 
-export default GenerarPdf;
+export default ReportesPage;

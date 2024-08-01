@@ -1,0 +1,64 @@
+/* ReportesPage.css */
+
+/* Estilos generales para la página de reportes */
+.reportes-container {
+    padding: 24px;
+  }
+  
+  /* Estilos para la cabecera de los detalles del reporte */
+  .reporte-header {
+    margin-bottom: 24px;
+  }
+  
+  /* Estilos para la disposición de las estadísticas y las firmas */
+  .estadisticas-firma-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+  
+  /* Estilos para los gráficos */
+  .graficos-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+  
+  .grafico {
+    flex: 1;
+    margin-right: 8px;
+  }
+  
+  .grafico:last-child {
+    margin-right: 0;
+  }
+  
+  /* Estilos para la tabla de imágenes */
+  .imagenes-table {
+    margin-top: 24px;
+  }
+  
+  /* Estilos para la sección de firmas */
+  .firma-content {
+    width: 45%;
+    margin-right: 8px;
+  }
+  
+  /* Estilos para los botones */
+  .botones-container {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .botones-container .MuiButton-root {
+    margin-left: 8px;
+  }
+  
+  /* Ocultar elementos durante la generación del PDF */
+  @media print {
+    .no-print {
+      display: none;
+    }
+  }
+  

@@ -4,8 +4,8 @@ import { db } from "../../../../firebaseConfig";
 import SeleccionEmpresa from "./SeleccionEmpresa";
 import SeleccionSucursal from "./SeleccionSucursal";
 import SeleccionFormulario from "./SeleccionFormulario";
-import PreguntasYSeccion from "../../auditoria/PreguntasYSeccion";
-import Reporte from "./../reporte/reporte";
+import PreguntasYSeccion from "./PreguntasYSeccion";
+import Reporte from "./Reporte";
 import BotonGenerarReporte from "./BotonGenerarReporte";
 import { Typography, Grid, Alert, Box, Button } from "@mui/material";
 

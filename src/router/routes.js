@@ -7,6 +7,7 @@ import Formulario from "../components/pages/formulario/Formulario";
 import EditarFormulario from "../components/pages/editar/EditarFormulario";
 //import Reporte from "../components/pages/auditoria/reporte";
 import Informe from "../components/pages/auditoria/Informe";
+import GenerarPdf from "../components/pages/auditoria/reporte/GenerarPdf";
 
 export const routes = [
   {
@@ -45,8 +46,8 @@ export const routes = [
     Element: EditarFormulario,
   },
   {
-    id: "reporte",
+    id: "informe",
     path: "/reporte",
-    Element: Informe,
+    Element: GenerarPdf,
   },
-];
+  ];
