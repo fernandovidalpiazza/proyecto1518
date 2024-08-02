@@ -3,7 +3,10 @@ import PropTypes from "prop-types";
 import ResumenRespuestas from "./ResumenRespuestas";
 import EstadisticasChart from "./EstadisticasPreguntas";
 import ImagenesTable from "./ImagenesTable";
-import { Typography, Grid, Box } from "@mui/material";
+import { Typography, Grid, Box, Button } from "@mui/material";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { db } from "./../../../../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 
 const Reporte = ({
   empresa,
@@ -13,6 +16,8 @@ const Reporte = ({
   imagenes = [],
   secciones,
 }) => {
+  const navigate = useNavigate();
+
   if (!Array.isArray(respuestas) || respuestas.length === 0) {
     return <div>No hay datos de respuestas disponibles.</div>;
   }
@@ -50,6 +55,33 @@ const Reporte = ({
   const todasPreguntasContestadas =
     respuestas.flat().length ===
     seccionesArray.reduce((acc, seccion) => acc + seccion.preguntas.length, 0);
+
+  const guardarReporte = async () => {
+    try {
+      const reporte = {
+        empresa,
+        sucursal,
+        respuestas: respuestas.flat(), // Simplificar a array plano
+        comentarios: comentarios.flat(), // Simplificar a array plano
+        imagenes: imagenes.flat(), // Simplificar a array plano
+        secciones: seccionesArray,
+        estadisticas,
+        estadisticasSinNoAplica,
+        totalRespuestas,
+        fechaGuardado: Timestamp.fromDate(new Date()), // Usar Timestamp de Firestore
+      };
+
+      await addDoc(collection(db, "reportes"), reporte);
+      alert("Reporte guardado exitosamente");
+    } catch (error) {
+      console.error("Error al guardar el reporte:", error);
+      alert("Error al guardar el reporte");
+    }
+  };
+
+  const handleVolver = () => {
+    navigate(-1); // Navega a la página anterior
+  };
 
   return (
     <Box className="reporte-container" p={3}>
@@ -90,7 +122,14 @@ const Reporte = ({
           imagenes={imagenes}
         />
       </Box>
-      {/* Eliminamos FirmaSection y GenerarPdf */}
+      <Box display="flex" justifyContent="space-between" mt={3}>
+        <Button variant="contained" onClick={handleVolver}>
+          Volver
+        </Button>
+        <Button variant="contained" onClick={guardarReporte}>
+          Guardar en la DB
+        </Button>
+      </Box>
     </Box>
   );
 };
