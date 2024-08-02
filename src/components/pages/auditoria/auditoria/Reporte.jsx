@@ -5,7 +5,8 @@ import EstadisticasChart from "./EstadisticasPreguntas";
 import ImagenesTable from "./ImagenesTable";
 import { Typography, Grid, Box, Button } from "@mui/material";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { db } from "./../../../../firebaseConfig";
+import { db, storage } from "./../../../../firebaseConfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 
 const Reporte = ({
@@ -33,21 +34,15 @@ const Reporte = ({
 
   const estadisticas = {
     Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
-    "No conforme": respuestas.flat().filter((res) => res === "No conforme")
-      .length,
-    "Necesita mejora": respuestas
-      .flat()
-      .filter((res) => res === "Necesita mejora").length,
+    "No conforme": respuestas.flat().filter((res) => res === "No conforme").length,
+    "Necesita mejora": respuestas.flat().filter((res) => res === "Necesita mejora").length,
     "No aplica": respuestas.flat().filter((res) => res === "No aplica").length,
   };
 
   const estadisticasSinNoAplica = {
     Conforme: respuestas.flat().filter((res) => res === "Conforme").length,
-    "No conforme": respuestas.flat().filter((res) => res === "No conforme")
-      .length,
-    "Necesita mejora": respuestas
-      .flat()
-      .filter((res) => res === "Necesita mejora").length,
+    "No conforme": respuestas.flat().filter((res) => res === "No conforme").length,
+    "Necesita mejora": respuestas.flat().filter((res) => res === "Necesita mejora").length,
   };
 
   const totalRespuestas = respuestas.flat().length;
@@ -56,14 +51,37 @@ const Reporte = ({
     respuestas.flat().length ===
     seccionesArray.reduce((acc, seccion) => acc + seccion.preguntas.length, 0);
 
+  const uploadImage = async (file) => {
+    if (!file || !(file instanceof File)) {
+      console.error("Archivo no válido:", file);
+      return null;
+    }
+    try {
+      const storageRef = ref(storage, `imagenes/${file.name}`);
+      await uploadBytes(storageRef, file);
+      return await getDownloadURL(storageRef);
+    } catch (error) {
+      console.error("Error al subir imagen:", error);
+      return null;
+    }
+  };
+
   const guardarReporte = async () => {
     try {
+      // Convierte las imágenes en URLs antes de guardar
+      const imagenesURLs = await Promise.all(
+        imagenes.flat().map(async (imagen) => await uploadImage(imagen))
+      );
+
+      // Filtra las URLs nulas en caso de errores al subir imágenes
+      const imagenesURLsFiltradas = imagenesURLs.filter((url) => url !== null);
+
       const reporte = {
         empresa,
         sucursal,
         respuestas: respuestas.flat(), // Simplificar a array plano
         comentarios: comentarios.flat(), // Simplificar a array plano
-        imagenes: imagenes.flat(), // Simplificar a array plano
+        imagenes: imagenesURLsFiltradas, // Guardar solo las URLs de las imágenes
         secciones: seccionesArray,
         estadisticas,
         estadisticasSinNoAplica,

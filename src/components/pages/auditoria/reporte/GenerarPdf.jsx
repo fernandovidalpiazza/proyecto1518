@@ -115,23 +115,19 @@ const ReportesPage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {selectedReporte.secciones?.flatMap((seccion, index) =>
+                  {selectedReporte.secciones.flatMap((seccion, index) =>
                     seccion.preguntas.map((pregunta, idx) => (
                       <TableRow key={`${selectedReporte.id}-${index}-${idx}`}>
-                        <TableCell>{selectedReporte.empresa?.nombre ?? "Nombre no disponible"}</TableCell>
+                        <TableCell>{selectedReporte.empresa.nombre}</TableCell>
                         <TableCell>
-                          {selectedReporte.empresa?.logo ? (
-                            <img src={selectedReporte.empresa.logo} alt="Logo" style={{ width: '50px', height: '50px' }} />
-                          ) : (
-                            "Logo no disponible"
-                          )}
+                          <img src={selectedReporte.empresa.logo} alt="Logo" style={{ width: '50px', height: '50px' }} />
                         </TableCell>
-                        <TableCell>{seccion.nombre ?? "Sección no disponible"}</TableCell>
-                        <TableCell>{pregunta ?? "Pregunta no disponible"}</TableCell>
-                        <TableCell>{selectedReporte.respuestas?.[idx] ?? "Respuesta no disponible"}</TableCell>
-                        <TableCell>{selectedReporte.comentarios?.[idx] ?? "Comentario no disponible"}</TableCell>
+                        <TableCell>{seccion.nombre}</TableCell>
+                        <TableCell>{pregunta}</TableCell>
+                        <TableCell>{selectedReporte.respuestas[idx] ?? "Respuesta no disponible"}</TableCell>
+                        <TableCell>{selectedReporte.comentarios[idx] ?? "Comentario no disponible"}</TableCell>
                         <TableCell>
-                          {selectedReporte.imagenes?.[idx] ? (
+                          {selectedReporte.imagenes[idx] ? (
                             <img src={selectedReporte.imagenes[idx]} alt={`Imagen ${idx}`} style={{ width: '100px', height: 'auto' }} />
                           ) : (
                             "Imagen no disponible"
