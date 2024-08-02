@@ -119,19 +119,29 @@ const Reporte = ({
         estadisticas={estadisticas}
       />
       <Grid container spacing={3} mt={3}>
-        <Grid item xs={12} md={6}>
-          <EstadisticasChart
-            estadisticas={estadisticas}
-            title="Estadísticas Generales"
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <EstadisticasChart
-            estadisticas={estadisticasSinNoAplica}
-            title='Estadísticas (Sin "No aplica")'
-          />
-        </Grid>
-      </Grid>
+  {/* Espacio para el primer gráfico: Estadísticas Generales */}
+  <Grid item xs={12} sm={2} md={10}>
+    <Box display="flex" justifyContent="center">
+      <EstadisticasChart
+        estadisticas={estadisticas}
+        title="Estadísticas Generales"
+        style={{ maxWidth: '100%', height: 'auto' }} // Ajusta el tamaño del gráfico
+      />
+    </Box>
+  </Grid>
+
+  {/* Espacio para el segundo gráfico: Estadísticas (Sin "No aplica") */}
+  <Grid item xs={12} sm={2} md={10}>
+    <Box display="flex" justifyContent="center">
+      <EstadisticasChart
+        estadisticas={estadisticasSinNoAplica}
+        title='Estadísticas (Sin "No aplica")'
+        style={{ maxWidth: '100%', height: 'auto' }} // Ajusta el tamaño del gráfico
+      />
+    </Box>
+  </Grid>
+</Grid>
+
       <Box mt={3}>
         <ImagenesTable
           secciones={seccionesArray}

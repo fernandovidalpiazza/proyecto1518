@@ -43,7 +43,7 @@ const ReportesPage = () => {
     const element = detalleRef.current;
 
     const opt = {
-      margin: 1,
+      margin: [0.5, 0.5, 0.5, 0.5], // Margen de 0.5 pulgadas en todos los lados
       filename: 'detalle_reporte.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
@@ -59,7 +59,7 @@ const ReportesPage = () => {
   return (
     <Box className="reportes-container" p={3}>
       {selectedReporte ? (
-        <Box ref={detalleRef}>
+        <Box ref={detalleRef} className="pdf-content">
           <Typography variant="h2" gutterBottom>
             Detalles del Reporte de Auditoría
           </Typography>
@@ -76,11 +76,8 @@ const ReportesPage = () => {
             estadisticas={selectedReporte.estadisticas ?? {}}
           />
 
-          <Box display="flex" flexWrap="wrap" justifyContent="space-between" mt={3}>
-            <Box flex={1} minWidth="200px" maxWidth="45%" mb={3}>
-              <FirmaSection />
-            </Box>
-            <Box flex={1} minWidth="200px" maxWidth="45%" mb={3}>
+          <Box display="flex" flexDirection="column" justifyContent="space-between" alignItems="flex-end" mt={1} width="auto">
+            <Box flex={1} minWidth="100px" maxWidth="90%" mb={3}>
               <FirmaSection />
             </Box>
           </Box>
@@ -102,7 +99,7 @@ const ReportesPage = () => {
 
           <Box mb={3}>
             <TableContainer component={Paper}>
-              <Table>
+              <Table className="pdf-table">
                 <TableHead>
                   <TableRow>
                     <TableCell>Empresa</TableCell>
