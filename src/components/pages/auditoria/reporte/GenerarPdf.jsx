@@ -1,26 +1,59 @@
+// src/components/ReportesPage.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./../../../../firebaseConfig";
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box } from "@mui/material";
-import ResumenRespuestas from "./ResumenRespuestas";
-import EstadisticasChart from "./EstadisticasChart";
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Box,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+} from "@mui/material";
+import html2pdf from "html2pdf.js";
+import "./ReportesPage.css";
 import FirmaSection from "./FirmaSection";
-import html2pdf from 'html2pdf.js';
-import './ReportesPage.css';
+import EstadisticasChart from "./EstadisticasChart";
+import ResumenRespuestas from "./ResumenRespuestas";
 
 const ReportesPage = () => {
   const [reportes, setReportes] = useState([]);
+  const [filteredReportes, setFilteredReportes] = useState([]);
   const [selectedReporte, setSelectedReporte] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedEmpresa, setSelectedEmpresa] = useState("");
   const detalleRef = useRef();
 
   useEffect(() => {
     const fetchReportes = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "reportes"));
-        const reportesData = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const reportesData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        reportesData.sort((a, b) => {
+          const fechaA = a.fechaGuardado
+            ? new Date(a.fechaGuardado.seconds * 1000)
+            : new Date(0);
+          const fechaB = b.fechaGuardado
+            ? new Date(b.fechaGuardado.seconds * 1000)
+            : new Date(0);
+          return fechaB - fechaA;
+        });
+
         setReportes(reportesData);
+        setFilteredReportes(reportesData);
       } catch (error) {
         setError("Error al obtener reportes: " + error.message);
       } finally {
@@ -30,6 +63,16 @@ const ReportesPage = () => {
 
     fetchReportes();
   }, []);
+
+  useEffect(() => {
+    if (selectedEmpresa) {
+      setFilteredReportes(
+        reportes.filter((reporte) => reporte.empresa.id === selectedEmpresa)
+      );
+    } else {
+      setFilteredReportes(reportes);
+    }
+  }, [selectedEmpresa, reportes]);
 
   const handleSelectReporte = (reporte) => {
     setSelectedReporte(reporte);
@@ -43,18 +86,25 @@ const ReportesPage = () => {
     const element = detalleRef.current;
 
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5], // Margen de 0.5 pulgadas en todos los lados
-      filename: 'detalle_reporte.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: "detalle_reporte.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+      pagebreak: { mode: ['css', 'legacy'] }, // Añade la opción pagebreak
     };
 
     html2pdf().from(element).set(opt).save();
   };
 
+  const handleChangeEmpresa = (event) => {
+    setSelectedEmpresa(event.target.value);
+  };
+
   if (loading) return <Typography>Cargando reportes...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
+
+  const empresas = [...new Set(reportes.map((reporte) => reporte.empresa.id))];
 
   return (
     <Box className="reportes-container" p={3}>
@@ -66,9 +116,16 @@ const ReportesPage = () => {
           <Typography variant="h4" gutterBottom>
             Empresa: {selectedReporte.empresa?.nombre ?? "Nombre no disponible"}
           </Typography>
-          <Typography variant="h6">Sucursal: {selectedReporte.sucursal ?? "Sucursal no disponible"}</Typography>
           <Typography variant="h6">
-            Fecha y Hora de Guardado: {selectedReporte.fechaGuardado ? new Date(selectedReporte.fechaGuardado.seconds * 1000).toLocaleString() : "Fecha no disponible"}
+            Sucursal: {selectedReporte.sucursal ?? "Sucursal no disponible"}
+          </Typography>
+          <Typography variant="h6">
+            Fecha y Hora de Guardado:{" "}
+            {selectedReporte.fechaGuardado
+              ? new Date(
+                  selectedReporte.fechaGuardado.seconds * 1000
+                ).toLocaleString()
+              : "Fecha no disponible"}
           </Typography>
 
           <ResumenRespuestas
@@ -76,8 +133,11 @@ const ReportesPage = () => {
             estadisticas={selectedReporte.estadisticas ?? {}}
           />
 
-          <Box display="flex" flexDirection="column" justifyContent="space-between" alignItems="flex-end" mt={1} width="auto">
-            <Box flex={1} minWidth="100px" maxWidth="90%" mb={3}>
+          <Box className="signature-container" mt={3}>
+            <Box flex={1} minWidth="300px" maxWidth="45%">
+              <Typography variant="subtitle1" gutterBottom>
+                Firma del Auditor
+              </Typography>
               <FirmaSection />
             </Box>
           </Box>
@@ -103,7 +163,6 @@ const ReportesPage = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Empresa</TableCell>
-                    <TableCell>Logo</TableCell>
                     <TableCell>Sección</TableCell>
                     <TableCell>Pregunta</TableCell>
                     <TableCell>Respuesta</TableCell>
@@ -116,16 +175,24 @@ const ReportesPage = () => {
                     seccion.preguntas.map((pregunta, idx) => (
                       <TableRow key={`${selectedReporte.id}-${index}-${idx}`}>
                         <TableCell>{selectedReporte.empresa.nombre}</TableCell>
-                        <TableCell>
-                          <img src={selectedReporte.empresa.logo} alt="Logo" style={{ width: '50px', height: '50px' }} />
-                        </TableCell>
                         <TableCell>{seccion.nombre}</TableCell>
                         <TableCell>{pregunta}</TableCell>
-                        <TableCell>{selectedReporte.respuestas[idx] ?? "Respuesta no disponible"}</TableCell>
-                        <TableCell>{selectedReporte.comentarios[idx] ?? "Comentario no disponible"}</TableCell>
                         <TableCell>
-                          {selectedReporte.imagenes[idx] ? (
-                            <img src={selectedReporte.imagenes[idx]} alt={`Imagen ${idx}`} style={{ width: '100px', height: 'auto' }} />
+                          {selectedReporte.respuestas[idx] ??
+                            "Respuesta no disponible"}
+                        </TableCell>
+                        <TableCell>
+                          {selectedReporte.comentarios[idx] ??
+                            "Comentario no disponible"}
+                        </TableCell>
+                        <TableCell>
+                          {selectedReporte.imagenes &&
+                          selectedReporte.imagenes[idx] ? (
+                            <img
+                              src={selectedReporte.imagenes[idx]}
+                              alt="Imagen"
+                              style={{ width: "100px" }}
+                            />
                           ) : (
                             "Imagen no disponible"
                           )}
@@ -138,44 +205,69 @@ const ReportesPage = () => {
             </TableContainer>
           </Box>
 
-          <Box display="flex" justifyContent="space-between" mt={3}>
-            <Button variant="contained" onClick={handleCloseDetalles}>
-              Cerrar
-            </Button>
-            <Button variant="contained" onClick={handleDownloadPDF}>
-              Descargar PDF
-            </Button>
-          </Box>
+          <Button variant="contained" color="primary" onClick={handleDownloadPDF}>
+            Descargar PDF
+          </Button>
+          <Button variant="outlined" color="secondary" onClick={handleCloseDetalles}>
+            Cerrar
+          </Button>
         </Box>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Empresa</TableCell>
-                <TableCell>Sucursal</TableCell>
-                <TableCell>Fecha y Hora</TableCell>
-                <TableCell>Acción</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {reportes.map((reporte) => (
-                <TableRow key={reporte.id}>
-                  <TableCell>{reporte.empresa?.nombre ?? "Nombre no disponible"}</TableCell>
-                  <TableCell>{reporte.sucursal ?? "Sucursal no disponible"}</TableCell>
-                  <TableCell>
-                    {reporte.fechaGuardado ? new Date(reporte.fechaGuardado.seconds * 1000).toLocaleString() : "Fecha no disponible"}
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="contained" onClick={() => handleSelectReporte(reporte)}>
-                      Ver Detalles
-                    </Button>
-                  </TableCell>
-                </TableRow>
+        <>
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="empresa-select-label">Empresa</InputLabel>
+            <Select
+              labelId="empresa-select-label"
+              value={selectedEmpresa}
+              onChange={handleChangeEmpresa}
+              displayEmpty
+            >
+              <MenuItem value="">Todas</MenuItem>
+              {empresas.map((empresa) => (
+                <MenuItem key={empresa} value={empresa}>
+                  {empresa}
+                </MenuItem>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+            </Select>
+          </FormControl>
+
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Fecha</TableCell>
+                  <TableCell>Empresa</TableCell>
+                  <TableCell>Sucursal</TableCell>
+                  <TableCell>Acción</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredReportes.map((reporte) => (
+                  <TableRow key={reporte.id}>
+                    <TableCell>
+                      {reporte.fechaGuardado
+                        ? new Date(
+                            reporte.fechaGuardado.seconds * 1000
+                          ).toLocaleString()
+                        : "Fecha no disponible"}
+                    </TableCell>
+                    <TableCell>{reporte.empresa.nombre}</TableCell>
+                    <TableCell>{reporte.sucursal}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleSelectReporte(reporte)}
+                      >
+                        Ver Detalles
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       )}
     </Box>
   );

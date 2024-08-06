@@ -26,7 +26,7 @@ const Firma = ({ title, setFirmaURL }) => {
       <h2>{title}</h2>
       <SignatureCanvas
         ref={sigCanvas}
-        canvasProps={{ width: 500, height: 200, className: 'sigCanvas' }}
+        canvasProps={{ width: 400, height: 100, className: 'sigCanvas' }}
       />
       <Button variant="secondary" onClick={clearSignature}>Clear</Button>
       <Button variant="primary" onClick={saveSignature}>Save</Button>

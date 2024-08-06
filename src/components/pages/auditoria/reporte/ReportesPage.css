@@ -1,21 +1,37 @@
-/* ReportesPage.css */
+@media print {
+  .pdf-content {
+    padding: 20px;
+    margin: 0;
+  }
 
-.pdf-content {
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-}
+  .pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: auto;
+  }
 
-.pdf-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+  .pdf-table th,
+  .pdf-table td {
+    border: 1px solid #000;
+    padding: 5px;
+    text-align: left;
+    page-break-inside: avoid; /* Evita cortes dentro de las celdas */
+  }
 
-.pdf-table th, .pdf-table td {
-  border: 1px solid #000;
-  padding: 8px;
-  text-align: left;
-}
+  .pdf-table tr {
+    page-break-inside: avoid; /* Evita cortes dentro de las filas */
+    page-break-after: auto;
+  }
 
-.pdf-table th {
-  background-color: #f2f2f2;
+  .pdf-table thead {
+    display: table-header-group; /* Mantiene el encabezado en cada página */
+  }
+
+  .pdf-table tfoot {
+    display: table-footer-group; /* Mantiene el pie de tabla en cada página */
+  }
+
+  .MuiButton-root {
+    display: none; /* Oculta los botones en la impresión */
+  }
 }
