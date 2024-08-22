@@ -25,7 +25,7 @@ const SeleccionEmpresa = ({ empresas, empresaSeleccionada, onChange }) => {
           <em>Seleccione una empresa</em>
         </MenuItem>
         {empresas.map((empresa) => (
-          <MenuItem key={empresa.id} value={empresa.nombre}>
+          <MenuItem key={empresa.nombre} value={empresa.nombre}>
             <Box display="flex" alignItems="center">
               <img
                 src={empresa.logo}

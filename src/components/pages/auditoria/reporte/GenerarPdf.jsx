@@ -1,4 +1,3 @@
-// src/components/ReportesPage.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./../../../../firebaseConfig";
@@ -13,16 +12,14 @@ import {
   Paper,
   Typography,
   Box,
-  MenuItem,
-  Select,
-  InputLabel,
-  FormControl,
 } from "@mui/material";
 import html2pdf from "html2pdf.js";
 import "./ReportesPage.css";
 import FirmaSection from "./FirmaSection";
 import EstadisticasChart from "./EstadisticasChart";
 import ResumenRespuestas from "./ResumenRespuestas";
+import FiltrosReportes from "./FiltrosReportes";
+import ImagenesTable from "./ImagenesTable"; // Asegúrate de importar el componente
 
 const ReportesPage = () => {
   const [reportes, setReportes] = useState([]);
@@ -67,7 +64,7 @@ const ReportesPage = () => {
   useEffect(() => {
     if (selectedEmpresa) {
       setFilteredReportes(
-        reportes.filter((reporte) => reporte.empresa.id === selectedEmpresa)
+        reportes.filter((reporte) => reporte.empresa.nombre === selectedEmpresa)
       );
     } else {
       setFilteredReportes(reportes);
@@ -91,7 +88,7 @@ const ReportesPage = () => {
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      pagebreak: { mode: ['css', 'legacy'] }, // Añade la opción pagebreak
+      pagebreak: { mode: ['css', 'legacy'] },
     };
 
     html2pdf().from(element).set(opt).save();
@@ -104,7 +101,8 @@ const ReportesPage = () => {
   if (loading) return <Typography>Cargando reportes...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
 
-  const empresas = [...new Set(reportes.map((reporte) => reporte.empresa.id))];
+  // Obtén la lista única de nombres de empresa
+  const empresas = [...new Set(reportes.map((reporte) => reporte.empresa.nombre))];
 
   return (
     <Box className="reportes-container" p={3}>
@@ -129,8 +127,9 @@ const ReportesPage = () => {
           </Typography>
 
           <ResumenRespuestas
-            totalRespuestas={selectedReporte.totalRespuestas ?? 0}
-            estadisticas={selectedReporte.estadisticas ?? {}}
+            respuestas={selectedReporte.respuestas ?? {}}
+            comentarios={selectedReporte.comentarios ?? {}}
+            secciones={selectedReporte.secciones ?? []}
           />
 
           <Box className="signature-container" mt={3}>
@@ -157,6 +156,7 @@ const ReportesPage = () => {
             </Box>
           </Box>
 
+        
           <Box mb={3}>
             <TableContainer component={Paper}>
               <Table className="pdf-table">
@@ -205,54 +205,51 @@ const ReportesPage = () => {
             </TableContainer>
           </Box>
 
-          <Button variant="contained" color="primary" onClick={handleDownloadPDF}>
-            Descargar PDF
-          </Button>
-          <Button variant="outlined" color="secondary" onClick={handleCloseDetalles}>
-            Cerrar
-          </Button>
+          <Box display="flex" justifyContent="flex-end">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDownloadPDF}
+            >
+              Descargar PDF
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleCloseDetalles}
+              style={{ marginLeft: "10px" }}
+            >
+              Volver
+            </Button>
+          </Box>
         </Box>
       ) : (
         <>
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="empresa-select-label">Empresa</InputLabel>
-            <Select
-              labelId="empresa-select-label"
-              value={selectedEmpresa}
-              onChange={handleChangeEmpresa}
-              displayEmpty
-            >
-              <MenuItem value="">Todas</MenuItem>
-              {empresas.map((empresa) => (
-                <MenuItem key={empresa} value={empresa}>
-                  {empresa}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
+          <FiltrosReportes
+            empresas={empresas.map((nombre) => ({ nombre }))}
+            empresaSeleccionada={selectedEmpresa}
+            onChangeEmpresa={handleChangeEmpresa}
+          />
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Fecha</TableCell>
                   <TableCell>Empresa</TableCell>
                   <TableCell>Sucursal</TableCell>
-                  <TableCell>Acción</TableCell>
+                  <TableCell>Fecha de Guardado</TableCell>
+                  <TableCell>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredReportes.map((reporte) => (
                   <TableRow key={reporte.id}>
-                    <TableCell>
-                      {reporte.fechaGuardado
-                        ? new Date(
-                            reporte.fechaGuardado.seconds * 1000
-                          ).toLocaleString()
-                        : "Fecha no disponible"}
-                    </TableCell>
                     <TableCell>{reporte.empresa.nombre}</TableCell>
                     <TableCell>{reporte.sucursal}</TableCell>
+                    <TableCell>
+                      {reporte.fechaGuardado
+                        ? new Date(reporte.fechaGuardado.seconds * 1000).toLocaleString()
+                        : "Fecha no disponible"}
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="contained"

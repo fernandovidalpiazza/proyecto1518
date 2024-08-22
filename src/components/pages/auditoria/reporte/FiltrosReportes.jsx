@@ -17,7 +17,7 @@ const FiltrosReportes = ({ empresas, empresaSeleccionada, fecha, onEmpresaChange
       >
         <option value="">Todas las empresas</option>
         {empresas.map((empresa) => (
-          <option key={empresa.id} value={empresa.id}>
+          <option key={empresa.nombre} value={empresa.nombre}>
             {empresa.nombre}
           </option>
         ))}

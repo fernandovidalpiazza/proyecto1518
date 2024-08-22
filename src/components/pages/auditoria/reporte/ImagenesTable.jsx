@@ -1,12 +1,7 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 
-const ImagenesTable = ({ secciones, imagenes }) => {
-  if (!Array.isArray(imagenes) || imagenes.length === 0) {
-    return <Typography>No hay imágenes disponibles.</Typography>;
-  }
-
+const ImagenesTable = ({ secciones, imagenes, comentarios }) => {
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -15,33 +10,36 @@ const ImagenesTable = ({ secciones, imagenes }) => {
             <TableCell>Sección</TableCell>
             <TableCell>Pregunta</TableCell>
             <TableCell>Imagen</TableCell>
+            <TableCell>Comentario</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {imagenes.map((imagenUrl, index) => (
-            <TableRow key={index}>
-              <TableCell>{secciones[index]?.nombre ?? "Nombre de sección no disponible"}</TableCell>
-               <TableCell>{respuestas[sectionIndex]?.[preguntaIndex] || "No disponible"}</TableCell>
-              <TableCell>
-                <Box>
-                  <img src={imagenUrl} alt={`Imagen ${index}`} style={{ width: '100px', height: 'auto' }} />
-                </Box>
-              </TableCell>
-            </TableRow>
-          ))}
+          {secciones.flatMap((seccion, index) =>
+            seccion.preguntas.map((pregunta, idx) => (
+              <TableRow key={`${seccion.nombre}-${idx}`}>
+                <TableCell>{seccion.nombre}</TableCell>
+                <TableCell>{pregunta}</TableCell>
+                <TableCell>
+                  {imagenes && imagenes[idx] ? (
+                    <img
+                      src={imagenes[idx]}
+                      alt="Imagen"
+                      style={{ width: "100px" }}
+                    />
+                  ) : (
+                    "Imagen no disponible"
+                  )}
+                </TableCell>
+                <TableCell>
+                  {comentarios && comentarios[idx] ? comentarios[idx] : "Comentario no disponible"}
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>
   );
-};
-
-ImagenesTable.propTypes = {
-  secciones: PropTypes.arrayOf(
-    PropTypes.shape({
-      nombre: PropTypes.string, // Cambiado a no requerido
-    })
-  ).isRequired,
-  imagenes: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default ImagenesTable;

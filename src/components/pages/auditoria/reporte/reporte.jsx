@@ -4,16 +4,15 @@ import { Box, Typography, List, ListItem, ListItemText, Divider, Paper, Button }
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import { collection, addDoc } from "firebase/firestore";
-import { db, storage } from "./../../../../firebaseConfig"; // Asegúrate de importar el `storage` correctamente
+import { db, storage } from "./../../../../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-// Registrar los componentes necesarios
+// Register the components needed for ChartJS
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, secciones }) => {
-  
   const generarEstadisticas = () => {
-    // Lógica para generar estadísticas a partir de las respuestas
+    // Generate statistics from responses
     const conforme = respuestas.flat().filter((r) => r === "Conforme").length;
     const noConforme = respuestas.flat().filter((r) => r === "No Conforme").length;
     const necesitaMejora = respuestas.flat().filter((r) => r === "Necesita Mejora").length;
@@ -39,19 +38,17 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, seccion
     return await getDownloadURL(storageRef);
   };
 
-  const flattenData = (data) => data.flat().map((item, index) => ({ [`item${index}`]: item }));
-
   const guardarReporte = async () => {
     try {
-      // Asegúrate de convertir los archivos a URLs si es necesario
+      // Convert images to URLs
       const imagenesURLs = await Promise.all(imagenes.map(async (imagen) => await uploadImage(imagen)));
 
       const reporte = {
         empresa,
         sucursal,
-        respuestas: flattenData(respuestas),
-        comentarios: flattenData(comentarios),
-        imagenes: imagenesURLs, // Guarda solo las URLs de las imágenes
+        respuestas: respuestas.flat(), // Ensure this is in the correct format
+        comentarios: comentarios.flat(), // Ensure this is in the correct format
+        imagenes: imagenesURLs, // Save only the image URLs
         secciones,
         estadisticas: generarEstadisticas(),
         fechaGuardado: new Date(),
@@ -107,12 +104,12 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, seccion
                 <ListItem alignItems="flex-start">
                   <ListItemText
                     primary={`Pregunta: ${pregunta}`}
-                    secondary={`Respuesta: ${respuestas[indexSeccion][indexPregunta]}`}
+                    secondary={`Respuesta: ${respuestas[indexSeccion][indexPregunta] || "No disponible"}`}
                   />
                 </ListItem>
                 <ListItem alignItems="flex-start">
                   <ListItemText
-                    secondary={`Comentario: ${comentarios[indexSeccion][indexPregunta]}`}
+                    secondary={`Comentario: ${comentarios[indexSeccion][indexPregunta] || "No disponible"}`}
                   />
                 </ListItem>
                 <Divider />
@@ -134,7 +131,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, seccion
 Reporte.propTypes = {
   empresa: PropTypes.shape({
     nombre: PropTypes.string.isRequired,
-    logo: PropTypes.string.isRequired,
+    logo: PropTypes.string,
   }).isRequired,
   sucursal: PropTypes.string.isRequired,
   respuestas: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
