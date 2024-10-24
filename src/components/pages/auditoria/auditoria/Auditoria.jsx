@@ -252,10 +252,12 @@ const Auditoria = () => {
         <Reporte 
           empresa={empresaSeleccionada} 
           sucursal={sucursalSeleccionada} 
+          formulario={formularios.find(formulario => formulario.id === formularioSeleccionadoId)} // Pass the full formulario object
           respuestas={respuestas} 
           comentarios={comentarios}
           imagenes={imagenes}
           secciones={secciones} 
+         
         />
       )}
     </div>

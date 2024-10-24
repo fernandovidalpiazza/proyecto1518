@@ -162,7 +162,8 @@ const ReportesPage = () => {
               <Table className="pdf-table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Empresa</TableCell>
+                   
+                    <TableCell>Formulario</TableCell>
                     <TableCell>Sección</TableCell>
                     <TableCell>Pregunta</TableCell>
                     <TableCell>Respuesta</TableCell>
@@ -174,7 +175,8 @@ const ReportesPage = () => {
                   {selectedReporte.secciones.flatMap((seccion, index) =>
                     seccion.preguntas.map((pregunta, idx) => (
                       <TableRow key={`${selectedReporte.id}-${index}-${idx}`}>
-                        <TableCell>{selectedReporte.empresa.nombre}</TableCell>
+                        
+                        <TableCell>{selectedReporte.formulario.nombre}</TableCell>
                         <TableCell>{seccion.nombre}</TableCell>
                         <TableCell>{pregunta}</TableCell>
                         <TableCell>
@@ -236,6 +238,7 @@ const ReportesPage = () => {
                 <TableRow>
                   <TableCell>Empresa</TableCell>
                   <TableCell>Sucursal</TableCell>
+                  <TableCell>Formulario</TableCell>
                   <TableCell>Fecha de Guardado</TableCell>
                   <TableCell>Acciones</TableCell>
                 </TableRow>
@@ -245,6 +248,7 @@ const ReportesPage = () => {
                   <TableRow key={reporte.id}>
                     <TableCell>{reporte.empresa.nombre}</TableCell>
                     <TableCell>{reporte.sucursal}</TableCell>
+                    <TableCell>{reporte.formulario.nombre}</TableCell>
                     <TableCell>
                       {reporte.fechaGuardado
                         ? new Date(reporte.fechaGuardado.seconds * 1000).toLocaleString()

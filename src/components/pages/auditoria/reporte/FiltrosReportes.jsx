@@ -1,41 +1,27 @@
+// FiltrosReportes.jsx
 import React from 'react';
-import { Box, TextField, Button } from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
-const FiltrosReportes = ({ empresas, empresaSeleccionada, fecha, onEmpresaChange, onFechaChange, onFiltrar }) => {
+const FiltrosReportes = ({ empresas, empresaSeleccionada, onChangeEmpresa }) => {
   return (
-    <Box mb={3} display="flex" justifyContent="space-between">
-      <TextField
-        select
-        label="Seleccionar Empresa"
-        value={empresaSeleccionada}
-        onChange={onEmpresaChange}
-        SelectProps={{
-          native: true,
-        }}
-        variant="outlined"
-        margin="normal"
-      >
-        <option value="">Todas las empresas</option>
-        {empresas.map((empresa) => (
-          <option key={empresa.nombre} value={empresa.nombre}>
-            {empresa.nombre}
-          </option>
-        ))}
-      </TextField>
-      <TextField
-        label="Fecha de Guardado"
-        type="date"
-        value={fecha}
-        onChange={onFechaChange}
-        InputLabelProps={{
-          shrink: true,
-        }}
-        variant="outlined"
-        margin="normal"
-      />
-      <Button variant="contained" color="primary" onClick={onFiltrar} style={{ alignSelf: 'center', marginTop: '16px' }}>
-        Filtrar
-      </Button>
+    <Box mb={2}>
+      <FormControl fullWidth>
+        <InputLabel id="empresa-select-label">Seleccionar Empresa</InputLabel>
+        <Select
+          labelId="empresa-select-label"
+          value={empresaSeleccionada}
+          onChange={onChangeEmpresa}
+        >
+          <MenuItem value="">
+            <em>Todos</em>
+          </MenuItem>
+          {empresas.map((empresa, index) => (
+            <MenuItem key={index} value={empresa.nombre}>
+              {empresa.nombre}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </Box>
   );
 };

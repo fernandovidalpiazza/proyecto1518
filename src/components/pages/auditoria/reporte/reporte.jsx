@@ -1,8 +1,25 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Box, Typography, List, ListItem, ListItemText, Divider, Paper, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Paper,
+  Button,
+} from "@mui/material";
 import { Bar } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import { collection, addDoc } from "firebase/firestore";
 import { db, storage } from "./../../../../firebaseConfig";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -10,9 +27,17 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 // Register the components needed for ChartJS
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, secciones }) => {
+const Reporte = ({
+  empresa,
+  sucursal,
+  respuestas,
+  comentarios,
+  imagenes,
+  secciones,
+  formularios,
+}) => {
+  // Generate statistics from responses
   const generarEstadisticas = () => {
-    // Generate statistics from responses
     const conforme = respuestas.flat().filter((r) => r === "Conforme").length;
     const noConforme = respuestas.flat().filter((r) => r === "No Conforme").length;
     const necesitaMejora = respuestas.flat().filter((r) => r === "Necesita Mejora").length;
@@ -32,16 +57,22 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, seccion
 
   const datosEstadisticos = generarEstadisticas();
 
+  // Upload image to Firebase Storage
   const uploadImage = async (file) => {
     const storageRef = ref(storage, 'imagenes/' + file.name);
     await uploadBytes(storageRef, file);
     return await getDownloadURL(storageRef);
   };
 
+  // Save the report to Firestore
   const guardarReporte = async () => {
     try {
-      // Convert images to URLs
-      const imagenesURLs = await Promise.all(imagenes.map(async (imagen) => await uploadImage(imagen)));
+      // Convert images to URLs, handle case where no images are provided
+      const imagenesURLs = imagenes.length > 0 
+        ? await Promise.all(imagenes.map(async (imagen) => await uploadImage(imagen)))
+        : [];
+
+      const nombreForm = formularios.length > 0 ? formularios[0].nombre : 'Formulario sin nombre';
 
       const reporte = {
         empresa,
@@ -50,9 +81,13 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, seccion
         comentarios: comentarios.flat(), // Ensure this is in the correct format
         imagenes: imagenesURLs, // Save only the image URLs
         secciones,
-        estadisticas: generarEstadisticas(),
+        estadisticas: datosEstadisticos,
         fechaGuardado: new Date(),
+        formularios,
+        nombreForm, // New field for the form name
       };
+
+      console.log("Datos a guardar:", reporte); // Debug log for data validation
 
       await addDoc(collection(db, "reportes"), reporte);
       alert("Reporte guardado exitosamente");
@@ -74,7 +109,7 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, seccion
       <Typography variant="h6" gutterBottom>
         Sucursal: {sucursal}
       </Typography>
-
+      
       {empresa.logo && (
         <Box mt={2} mb={4}>
           <img
@@ -93,29 +128,37 @@ const Reporte = ({ empresa, sucursal, respuestas, comentarios, imagenes, seccion
       <Typography variant="h5" gutterBottom mt={4}>
         Preguntas y Respuestas
       </Typography>
-      {secciones.map((seccion, indexSeccion) => (
-        <Box key={indexSeccion} mb={4}>
+
+      {formularios.map((formulario, indexFormulario) => (
+        <Box key={indexFormulario} mb={4}>
           <Typography variant="h6" gutterBottom>
-            Sección: {seccion.nombre}
+            Formulario: {formulario.nombre}
           </Typography>
-          <List>
-            {seccion.preguntas.map((pregunta, indexPregunta) => (
-              <React.Fragment key={indexPregunta}>
-                <ListItem alignItems="flex-start">
-                  <ListItemText
-                    primary={`Pregunta: ${pregunta}`}
-                    secondary={`Respuesta: ${respuestas[indexSeccion][indexPregunta] || "No disponible"}`}
-                  />
-                </ListItem>
-                <ListItem alignItems="flex-start">
-                  <ListItemText
-                    secondary={`Comentario: ${comentarios[indexSeccion][indexPregunta] || "No disponible"}`}
-                  />
-                </ListItem>
-                <Divider />
-              </React.Fragment>
-            ))}
-          </List>
+          {secciones.map((seccion, indexSeccion) => (
+            <Box key={indexSeccion} mb={4}>
+              <Typography variant="h6" gutterBottom>
+                Sección: {seccion.nombre}
+              </Typography>
+              <List>
+                {seccion.preguntas.map((pregunta, indexPregunta) => (
+                  <React.Fragment key={indexPregunta}>
+                    <ListItem alignItems="flex-start">
+                      <ListItemText
+                        primary={`Pregunta: ${pregunta}`}
+                        secondary={`Respuesta: ${respuestas[indexFormulario]?.[indexSeccion]?.[indexPregunta] || "No disponible"}`}
+                      />
+                    </ListItem>
+                    <ListItem alignItems="flex-start">
+                      <ListItemText
+                        secondary={`Comentario: ${comentarios[indexFormulario]?.[indexSeccion]?.[indexPregunta] || "No disponible"}`}
+                      />
+                    </ListItem>
+                    <Divider />
+                  </React.Fragment>
+                ))}
+              </List>
+            </Box>
+          ))}
         </Box>
       ))}
 
@@ -141,6 +184,11 @@ Reporte.propTypes = {
     PropTypes.shape({
       nombre: PropTypes.string.isRequired,
       preguntas: PropTypes.arrayOf(PropTypes.string).isRequired,
+    })
+  ).isRequired,
+  formularios: PropTypes.arrayOf(
+    PropTypes.shape({
+      nombre: PropTypes.string.isRequired,
     })
   ).isRequired,
 };

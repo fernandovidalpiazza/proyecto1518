@@ -1,43 +1,20 @@
-/* Reporte.css */
-
-/* Estilos generales para el contenedor del reporte */
-.reporte-container {
-  padding: 24px;
+.reportes-container {
+  padding: 16px;
+  background-color: #f9f9f9;
 }
 
-/* Ocultar elementos durante la generación del PDF */
-@media print {
-  .no-print {
-    display: none;
-  }
-}
-
-/* Asegúrate de que los gráficos estén uno al lado del otro y que las firmas estén en su lugar */
 .pdf-content {
-  display: flex;
-  flex-direction: column;
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.grupos {
-  display: flex;
-  justify-content: space-between;
-}
-
-.firma-content {
-  width: 1%;
-}
-
-.graficos-container {
-  display: flex;
-  justify-content: space-between;
+.signature-container {
   margin-top: 24px;
 }
 
-.grafico {
-  flex: 1;
-  margin-right: 8px;
-}
-
-.grafico:last-child {
-  margin-right: 0;
+.signature-container img {
+  max-width: 100%;
+  height: auto;
 }

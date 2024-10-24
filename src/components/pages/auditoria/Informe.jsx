@@ -1,9 +1,8 @@
 import React from "react";
 import { Typography } from "@mui/material";
 import { Pie } from "react-chartjs-2";
- 
 
-const Informe = ({ empresa, sucursal, respuestas, secciones }) => {
+const Informe = ({ empresa, sucursal, respuestas, secciones, nombreFormulario }) => {
   // Calcula los datos para el gráfico de torta
   const totalPreguntas = respuestas.flat().length;
   const conformes = respuestas.flat().filter(r => r === "Conforme").length;
@@ -44,13 +43,16 @@ const Informe = ({ empresa, sucursal, respuestas, secciones }) => {
     <div className="reporte-container">
       <div className="reporte-content" id="reporte">
         <Typography variant="h5" gutterBottom>
-          Informe de Auditoría 
+          Informe de Auditoría
         </Typography>
         <Typography variant="body1" gutterBottom>
           Empresa: {empresa}
         </Typography>
         <Typography variant="body1" gutterBottom>
           Sucursal: {sucursal}
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Nombre del Formulario: {nombreFormulario || "Nombre no disponible"}
         </Typography>
         <Typography variant="body1" gutterBottom>
           Preguntas respondidas: {totalPreguntas}

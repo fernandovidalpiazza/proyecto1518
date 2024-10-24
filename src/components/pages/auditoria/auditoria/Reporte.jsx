@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
+import PropTypes from "prop-types"; // Asegúrate de que esta línea esté presente
 import ResumenRespuestas from "./ResumenRespuestas";
 import EstadisticasChart from "./EstadisticasPreguntas";
 import ImagenesTable from "./ImagenesTable";
@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 const Reporte = ({
   empresa,
   sucursal,
+  formulario, // Asegúrate de agregar formulario como prop
   respuestas,
   comentarios = [],
   imagenes = [],
@@ -79,6 +80,7 @@ const Reporte = ({
       const reporte = {
         empresa,
         sucursal,
+        formulario, // Asegúrate de que 'formulario' esté definido
         respuestas: respuestas.flat(), // Simplificar a array plano
         comentarios: comentarios.flat(), // Simplificar a array plano
         imagenes: imagenesURLsFiltradas, // Guardar solo las URLs de las imágenes
@@ -114,33 +116,34 @@ const Reporte = ({
       </Typography>
       <Typography variant="h6">Empresa: {empresa.nombre}</Typography>
       <Typography variant="h6">Sucursal: {sucursal}</Typography>
+      <Typography variant="h6">Formulario: {formulario.nombre}</Typography> {/* Cambiado de "formulairo" a "Formulario" */}
       <ResumenRespuestas
         totalRespuestas={totalRespuestas}
         estadisticas={estadisticas}
       />
       <Grid container spacing={3} mt={3}>
-  {/* Espacio para el primer gráfico: Estadísticas Generales */}
-  <Grid item xs={12} sm={2} md={10}>
-    <Box display="flex" justifyContent="center">
-      <EstadisticasChart
-        estadisticas={estadisticas}
-        title="Estadísticas Generales"
-        style={{ maxWidth: '100%', height: 'auto' }} // Ajusta el tamaño del gráfico
-      />
-    </Box>
-  </Grid>
+        {/* Espacio para el primer gráfico: Estadísticas Generales */}
+        <Grid item xs={12} sm={2} md={10}>
+          <Box display="flex" justifyContent="center">
+            <EstadisticasChart
+              estadisticas={estadisticas}
+              title="Estadísticas Generales"
+              style={{ maxWidth: '100%', height: 'auto' }} // Ajusta el tamaño del gráfico
+            />
+          </Box>
+        </Grid>
 
-  {/* Espacio para el segundo gráfico: Estadísticas (Sin "No aplica") */}
-  <Grid item xs={12} sm={2} md={10}>
-    <Box display="flex" justifyContent="center">
-      <EstadisticasChart
-        estadisticas={estadisticasSinNoAplica}
-        title='Estadísticas (Sin "No aplica")'
-        style={{ maxWidth: '100%', height: 'auto' }} // Ajusta el tamaño del gráfico
-      />
-    </Box>
-  </Grid>
-</Grid>
+        {/* Espacio para el segundo gráfico: Estadísticas (Sin "No aplica") */}
+        <Grid item xs={12} sm={2} md={10}>
+          <Box display="flex" justifyContent="center">
+            <EstadisticasChart
+              estadisticas={estadisticasSinNoAplica}
+              title='Estadísticas (Sin "No aplica")'
+              style={{ maxWidth: '100%', height: 'auto' }} // Ajusta el tamaño del gráfico
+            />
+          </Box>
+        </Grid>
+      </Grid>
 
       <Box mt={3}>
         <ImagenesTable
@@ -168,6 +171,10 @@ Reporte.propTypes = {
     logo: PropTypes.string.isRequired,
   }).isRequired,
   sucursal: PropTypes.string.isRequired,
+  formulario: PropTypes.shape({ // Asegúrate de definir el tipo de formulario
+    id: PropTypes.string.isRequired,
+    // Otras propiedades que necesite el formulario
+  }).isRequired,
   respuestas: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
   comentarios: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
   imagenes: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.instanceOf(File))),
