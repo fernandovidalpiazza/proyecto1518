@@ -1,37 +1,26 @@
-@media print {
-  .pdf-content {
-    padding: 20px;
-    margin: 0;
-  }
+.pdf-content {
+  font-family: Arial, sans-serif;
+}
 
-  .pdf-table {
-    width: 100%;
-    border-collapse: collapse;
-    page-break-inside: auto;
-  }
+.page-break {
+  page-break-before: always;
+}
 
-  .pdf-table th,
-  .pdf-table td {
-    border: 1px solid #000;
-    padding: 5px;
-    text-align: left;
-    page-break-inside: avoid; /* Evita cortes dentro de las celdas */
-  }
+.page-break-avoid {
+  page-break-inside: avoid; /* Evita que el contenido de este elemento se corte en dos páginas */
+}
 
-  .pdf-table tr {
-    page-break-inside: avoid; /* Evita cortes dentro de las filas */
-    page-break-after: auto;
-  }
+.signature-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .pdf-table thead {
-    display: table-header-group; /* Mantiene el encabezado en cada página */
-  }
+.pdf-table {
+  width: 100%;
+}
 
-  .pdf-table tfoot {
-    display: table-footer-group; /* Mantiene el pie de tabla en cada página */
-  }
-
-  .MuiButton-root {
-    display: none; /* Oculta los botones en la impresión */
-  }
+.signature-image {
+  max-width: 200px;
+  max-height: 100px;
 }

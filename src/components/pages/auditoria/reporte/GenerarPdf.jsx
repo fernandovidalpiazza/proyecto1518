@@ -19,7 +19,6 @@ import FirmaSection from "./FirmaSection";
 import EstadisticasChart from "./EstadisticasChart";
 import ResumenRespuestas from "./ResumenRespuestas";
 import FiltrosReportes from "./FiltrosReportes";
-import ImagenesTable from "./ImagenesTable"; // Asegúrate de importar el componente
 
 const ReportesPage = () => {
   const [reportes, setReportes] = useState([]);
@@ -87,8 +86,14 @@ const ReportesPage = () => {
       filename: "detalle_reporte.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      pagebreak: { mode: ['css', 'legacy'] },
+      jsPDF: { 
+        unit: "in", 
+        format: "letter", 
+        orientation: "portrait",
+      },
+      pagebreak: { 
+        mode: ['avoid-all', 'css', 'legacy'], // Evita que los elementos como tablas y gráficos se corten
+      },
     };
 
     html2pdf().from(element).set(opt).save();
@@ -142,13 +147,13 @@ const ReportesPage = () => {
           </Box>
 
           <Box display="flex" flexWrap="wrap" justifyContent="space-between" mt={3}>
-            <Box flex={1} minWidth="300px" maxWidth="45%" mb={3}>
+            <Box flex={1} minWidth="300px" maxWidth="45%" mb={3} className="page-break-avoid">
               <EstadisticasChart
                 estadisticas={selectedReporte.estadisticas ?? {}}
                 title="Estadísticas Generales"
               />
             </Box>
-            <Box flex={1} minWidth="300px" maxWidth="45%" mb={3}>
+            <Box flex={1} minWidth="300px" maxWidth="45%" mb={3} className="page-break-avoid">
               <EstadisticasChart
                 estadisticas={selectedReporte.estadisticasSinNoAplica ?? {}}
                 title='Estadísticas (Sin "No aplica")'
@@ -156,13 +161,11 @@ const ReportesPage = () => {
             </Box>
           </Box>
 
-        
-          <Box mb={3}>
+          <Box mb={3} className="page-break-avoid">
             <TableContainer component={Paper}>
               <Table className="pdf-table">
                 <TableHead>
                   <TableRow>
-                   
                     <TableCell>Formulario</TableCell>
                     <TableCell>Sección</TableCell>
                     <TableCell>Pregunta</TableCell>
@@ -175,21 +178,17 @@ const ReportesPage = () => {
                   {selectedReporte.secciones.flatMap((seccion, index) =>
                     seccion.preguntas.map((pregunta, idx) => (
                       <TableRow key={`${selectedReporte.id}-${index}-${idx}`}>
-                        
                         <TableCell>{selectedReporte.formulario.nombre}</TableCell>
                         <TableCell>{seccion.nombre}</TableCell>
                         <TableCell>{pregunta}</TableCell>
                         <TableCell>
-                          {selectedReporte.respuestas[idx] ??
-                            "Respuesta no disponible"}
+                          {selectedReporte.respuestas[idx] ?? "Respuesta no disponible"}
                         </TableCell>
                         <TableCell>
-                          {selectedReporte.comentarios[idx] ??
-                            "Comentario no disponible"}
+                          {selectedReporte.comentarios[idx] ?? "Comentario no disponible"}
                         </TableCell>
                         <TableCell>
-                          {selectedReporte.imagenes &&
-                          selectedReporte.imagenes[idx] ? (
+                          {selectedReporte.imagenes && selectedReporte.imagenes[idx] ? (
                             <img
                               src={selectedReporte.imagenes[idx]}
                               alt="Imagen"

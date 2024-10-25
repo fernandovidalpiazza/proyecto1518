@@ -1,12 +1,17 @@
-import { BrowserRouter } from "react-router-dom";
-import AppRouter from "./router/AppRouter";
+// App.jsx
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import AuthContextComponent from './components/context/AuthContext'; // Importación correcta
+import AppRouter from './router/AppRouter';
 
-function App() {
+const App = () => {
   return (
-    <BrowserRouter>
-          <AppRouter />
-    </BrowserRouter>
+    <AuthContextComponent>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </AuthContextComponent>
   );
-}
+};
 
 export default App;

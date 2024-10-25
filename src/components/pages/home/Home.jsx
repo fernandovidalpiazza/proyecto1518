@@ -1,5 +1,6 @@
 import React from 'react';
-import { Container, Typography, Button, Grid, Paper } from '@mui/material';
+import { Container, Typography, Button, Grid, Paper, Box } from '@mui/material';
+import { Link } from 'react-router-dom'; // Importar Link para redirigir al login
 
 const Home = () => {
   return (
@@ -22,9 +23,11 @@ const Home = () => {
         <Typography variant="h5" component="h2" gutterBottom>
           Optimiza tus auditorías con nuestra plataforma profesional.
         </Typography>
-        <Button variant="contained" color="primary" sx={{ marginTop: '1rem' }}>
-          Comienza Ahora
-        </Button>
+        <Link to="/login">
+          <Button variant="contained" color="primary" sx={{ marginTop: '1rem' }}>
+            Comienza Ahora
+          </Button>
+        </Link>
       </div>
       <Grid container spacing={4}>
         <Grid item xs={12} md={6}>
@@ -78,6 +81,19 @@ const Home = () => {
           </Paper>
         </Grid>
       </Grid>
+      <Box 
+        sx={{
+          textAlign: 'center',
+          marginTop: '2rem',
+          padding: '1rem',
+          backgroundColor: '#282c34',
+          color: 'white',
+        }}
+      >
+        <Typography variant="body2">
+          Contacto: licvidalfernando@gmail.com
+        </Typography>
+      </Box>
     </Container>
   );
 };
