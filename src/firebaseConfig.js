@@ -18,9 +18,8 @@ const firebaseConfig = {
   projectId: "auditoria-f9fc4",
   storageBucket: "auditoria-f9fc4.appspot.com",
   messagingSenderId: "156800340171",
-  appId: "1:156800340171:web:fbe017105fd68b0f114b4e",
+  appId: "1:156800340171:web:fbe017105fd68b0f114b4e"
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); // Inicializa la autenticación
 const db = getFirestore(app);
