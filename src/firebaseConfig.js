@@ -1,4 +1,3 @@
-// firebaseConfig.js
 import { initializeApp } from "firebase/app";
 import {
   signInWithEmailAndPassword,
@@ -18,27 +17,28 @@ const firebaseConfig = {
   projectId: "auditoria-f9fc4",
   storageBucket: "auditoria-f9fc4.appspot.com",
   messagingSenderId: "156800340171",
-  appId: "1:156800340171:web:fbe017105fd68b0f114b4e"
+  appId: "1:156800340171:web:fbe017105fd68b0f114b4e",
 };
+
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app); // Inicializa la autenticación
+const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app); // Inicializa el almacenamiento
 
-// Función de inicio de sesión
+// inicio de sesión
 export const onSignIn = async ({ email, password }) => {
   try {
     console.log("Intentando iniciar sesión...");
     const res = await signInWithEmailAndPassword(auth, email, password);
     console.log("Inicio de sesión exitoso:", res);
-    return res;
+    return res; // Si lo deseas, puedes devolver el resultado
   } catch (error) {
     console.error("Error al iniciar sesión:", error);
-    throw error;
+    throw error; // Lanza el error para que pueda ser capturado en el componente Login
   }
 };
 
-// Función de cierre de sesión
+// cierre de sesión
 export const logout = () => {
   signOut(auth)
     .then(() => {
@@ -46,10 +46,11 @@ export const logout = () => {
     })
     .catch((error) => {
       console.error("Error al cerrar sesión:", error);
+      // Maneja el error apropiadamente
     });
 };
 
-// Función de registro
+// registro
 export const signUp = async ({ email, password }) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
@@ -76,10 +77,9 @@ export const signUp = async ({ email, password }) => {
   }
 };
 
-// Función para restablecer contraseña
+// olvidar contraseña
 export const forgotPassword = async (email) => {
   await sendPasswordResetEmail(auth, email);
 };
 
-// Exporta auth, db, y storage
-export { auth, db, storage };
+export { db, storage }; // Exporta el almacenamiento
