@@ -1,27 +1,30 @@
-// AppRouter.jsx
-import { Route, Routes,Navigate  } from "react-router-dom";
-import Home from "../components/pages/home/Home";
+import { Route, Routes } from "react-router-dom";
+import Navbar from "../components/layout/navbar/Navbar";
+import { routes } from "./routes";
 import Login from "../components/pages/login/Login";
 import Register from "../components/pages/register/Register";
 import ForgotPassword from "../components/pages/forgotPassword/ForgotPassword";
-import React, { useContext } from 'react'
-import { AuthContext } from "../components/context/AuthContext";
-
+import ProtectedUsers from "./ProtectedUsers";
 
 const AppRouter = () => {
-  const { isLogged } = useContext(AuthContext);
-
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      {/* Rutas protegidas para usuarios autenticados */}
+      <Route element={<ProtectedUsers />}>
+        <Route path="/" element={<Navbar />}>
+          {routes.map(({ id, path, Element }) => (
+            <Route key={id} path={path} element={<Element />} />
+          ))}
+        </Route>
+      </Route>
+
+      {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route
-        path="/dashboard"
-        element={isLogged ? <Dashboard /> : <Navigate to="/login" />}
-      />
-      <Route path="*" element={<h1>404: Not Found</h1>} />
+
+      {/* Página 404 */}
+      <Route path="*" element={<h1>Not Found</h1>} />
     </Routes>
   );
 };

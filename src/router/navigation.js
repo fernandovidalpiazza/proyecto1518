@@ -4,9 +4,8 @@ import ChecklistIcon from '@mui/icons-material/Checklist';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import BusinessIcon from '@mui/icons-material/Business';
 import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
+
 export const menuItems = [
-    
-   
     {
         id: "home",
         path: "/",
@@ -14,48 +13,45 @@ export const menuItems = [
         Icon: HomeIcon
     },
     {
-        id: "products",
+        id: "auditoria",
         path: "/shop",
-        title: "Auditoria",
+        title: "Auditoría",
         Icon: ChecklistIcon
     },
     {
-        id: "cart",
+        id: "formularios",
         path: "/cart",
         title: "Formularios",
         Icon: FormatListBulletedOutlinedIcon
     },
     {
-        id: "editar",
-        path: "/editar",
-        title: "EditarFormulario",
+        id: "editar-formulario",
+        path: "/editar-formulario",
+        title: "Editar Formulario",
         Icon: FormatListBulletedOutlinedIcon
     },
     {
-        id: "Establecimiento ",
+        id: "establecimiento",
         path: "/establecimiento",
         title: "Establecimientos",
         Icon: BusinessIcon
     },
     {
-        id: "sucursal ",
+        id: "sucursal",
         path: "/sucursales",
-        title: "Sucursal",
+        title: "Sucursales",
         Icon: BusinessIcon
     },
-
     {
-        id: "Reporte",
-        path: "/Reporte",
-        title: "Rerporte",
+        id: "reporte",
+        path: "/reporte",
+        title: "Reporte",
         Icon: PictureAsPdfIcon
     },
     {
-        id: "User",
-        path: "/User",
-        title: "User",
+        id: "usuarios",
+        path: "/user",
+        title: "Usuarios",
         Icon: BadgeOutlinedIcon
-    },
-
-    
-]
+    }
+];

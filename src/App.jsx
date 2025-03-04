@@ -1,13 +1,13 @@
-// App.jsx
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import AuthContextComponent from './components/context/AuthContext'; // Importación correcta
-import AppRouter from './router/AppRouter';
+// src/App.jsx
+import React from "react";
+import { BrowserRouter } from "react-router-dom"; // Importa BrowserRouter
+import AuthContextComponent from "./components/context/AuthContext";
+import AppRouter from "./router/AppRouter";
 
 const App = () => {
   return (
     <AuthContextComponent>
-      <BrowserRouter>
+      <BrowserRouter> {/* Envuelve AppRouter en BrowserRouter */}
         <AppRouter />
       </BrowserRouter>
     </AuthContextComponent>

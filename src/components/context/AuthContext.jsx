@@ -1,5 +1,7 @@
-import { useState, useEffect, createContext } from "react";
+// src/components/context/AuthContext.jsx
+import { createContext, useState, useEffect } from "react";
 
+// Definimos y exportamos el contexto
 export const AuthContext = createContext();
 
 const AuthContextComponent = ({ children }) => {
@@ -7,6 +9,7 @@ const AuthContextComponent = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
 
   useEffect(() => {
+    // Verificamos si hay un usuario almacenado en localStorage
     const storedUser = JSON.parse(localStorage.getItem("userInfo"));
     const storedIsLogged = JSON.parse(localStorage.getItem("isLogged"));
 
@@ -30,6 +33,7 @@ const AuthContextComponent = ({ children }) => {
     localStorage.removeItem("isLogged");
   };
 
+  // Los valores disponibles en el contexto
   const data = {
     user,
     isLogged,
@@ -40,4 +44,4 @@ const AuthContextComponent = ({ children }) => {
   return <AuthContext.Provider value={data}>{children}</AuthContext.Provider>;
 };
 
-export default AuthContextComponent; // Asegúrate de que esta línea esté presente
+export default AuthContextComponent;
