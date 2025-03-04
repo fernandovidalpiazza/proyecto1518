@@ -1,15 +1,14 @@
-// src/components/context/AuthContext.jsx
-import { createContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { createContext } from "react";
 
-// Definimos y exportamos el contexto
 export const AuthContext = createContext();
 
 const AuthContextComponent = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isLogged, setIsLogged] = useState(false);
+  const [user, setUser] = useState(null); // Inicializado como null
+  const [isLogged, setIsLogged] = useState(false); // Inicializado como false
 
   useEffect(() => {
-    // Verificamos si hay un usuario almacenado en localStorage
+    // Cargar desde localStorage al inicio
     const storedUser = JSON.parse(localStorage.getItem("userInfo"));
     const storedIsLogged = JSON.parse(localStorage.getItem("isLogged"));
 
@@ -27,13 +26,12 @@ const AuthContextComponent = ({ children }) => {
   };
 
   const logoutContext = () => {
-    setUser(null);
+    setUser(null); // Establecer como null al cerrar sesión
     setIsLogged(false);
     localStorage.removeItem("userInfo");
     localStorage.removeItem("isLogged");
   };
 
-  // Los valores disponibles en el contexto
   const data = {
     user,
     isLogged,
