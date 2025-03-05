@@ -5,6 +5,8 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { onSignIn } from '../../../firebaseConfig';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import Home from '../home/Home';
+Home
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,7 +29,7 @@ const Login = () => {
     setLoading(true);
     try {
       await onSignIn(values);
-      navigate("/");
+      navigate("/../home/Home");
     } catch (error) {
       console.error(error); // Muestra el error en la consola
       setErrors({ password: 'Correo electrónico o contraseña incorrectos' });
