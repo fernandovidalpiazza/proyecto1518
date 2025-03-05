@@ -12,12 +12,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage"; // Importa getStorage
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD7pmD_EVRf0dJcocynpaXAdu3tveycrzg",
-  authDomain: "auditoria-f9fc4.firebaseapp.com",
-  projectId: "auditoria-f9fc4",
-  storageBucket: "auditoria-f9fc4.appspot.com",
-  messagingSenderId: "156800340171",
-  appId: "1:156800340171:web:fbe017105fd68b0f114b4e",
+  apiKey: "AIzaSyDnFFf4ng5xLlunXz7I7SMCLRRiS8NmCfo",
+  authDomain: "auditoria-e11d8.firebaseapp.com",
+  projectId: "auditoria-e11d8",
+  storageBucket: "auditoria-e11d8.firebasestorage.app",
+  messagingSenderId: "804516378420",
+  appId: "1:804516378420:web:909002c1fbd442fbfc9761",
+  measurementId: "G-PV1TLC0RC1"
 };
 
 const app = initializeApp(firebaseConfig);
