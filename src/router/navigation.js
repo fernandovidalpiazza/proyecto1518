@@ -14,19 +14,19 @@ export const menuItems = [
     },
     {
         id: "auditoria",
-        path: "/shop",
+        path: "/auditoria",
         title: "Auditoría",
         Icon: ChecklistIcon
     },
     {
         id: "formularios",
-        path: "/cart",
+        path: "/formulario",
         title: "Formularios",
         Icon: FormatListBulletedOutlinedIcon
     },
     {
         id: "editar-formulario",
-        path: "/editar-formulario",
+        path: "/editar",
         title: "Editar Formulario",
         Icon: FormatListBulletedOutlinedIcon
     },
@@ -50,7 +50,7 @@ export const menuItems = [
     },
     {
         id: "usuarios",
-        path: "/user",
+        path: "/usuarios",
         title: "Usuarios",
         Icon: BadgeOutlinedIcon
     }

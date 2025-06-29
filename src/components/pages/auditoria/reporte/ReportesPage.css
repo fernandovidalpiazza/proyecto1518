@@ -24,3 +24,20 @@
   max-width: 200px;
   max-height: 100px;
 }
+
+/* Estilos para ocultar elementos en impresión */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Ocultar botones y elementos de navegación */
+  button, .MuiButton-root {
+    display: none !important;
+  }
+  
+  /* Ocultar elementos específicos */
+  .print-hide {
+    display: none !important;
+  }
+}

@@ -17,13 +17,15 @@ import { useState } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { menuItems } from "../../../router/navigation";
 import { logout } from "../../../firebaseConfig";
+import { useAuth } from "../../context/AuthContext";
 
 const drawerWidth = 200;
 
 function Navbar(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navigate = useNavigate(); // Corregido: Cambiado de Navigate a navigate
+  const navigate = useNavigate();
+  const { logoutContext, user } = useAuth();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -31,16 +33,23 @@ function Navbar(props) {
 
   const handleLogout = () => {
     logout();
-    navigate("/login"); // Corregido: Cambiado de Navigate a navigate
+    logoutContext();
+    navigate("/login");
   };
 
   const drawer = (
     <div>
       <Toolbar />
-
+      {user && (
+        <Box sx={{ p: 2, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <Box sx={{ color: 'whitesmoke', fontSize: '0.9rem' }}>
+            <div>Usuario: {user.email}</div>
+          </Box>
+        </Box>
+      )}
       <List>
         {menuItems.map(({ id, path, title, Icon }) => (
-          <Link key={id} to={path}>
+          <Link key={id} to={path} style={{ textDecoration: 'none' }}>
             <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>

@@ -27,11 +27,33 @@ const SeleccionEmpresa = ({ empresas, empresaSeleccionada, onChange }) => {
         {empresas.map((empresa) => (
           <MenuItem key={empresa.nombre} value={empresa.nombre}>
             <Box display="flex" alignItems="center">
-              <img
-                src={empresa.logo}
-                alt={`${empresa.nombre} logo`}
-                style={{ width: "50px", height: "auto", marginRight: "10px" }}
-              />
+              {empresa.logo && empresa.logo.trim() !== "" ? (
+                <img
+                  src={empresa.logo}
+                  alt={`${empresa.nombre} logo`}
+                  style={{ width: "50px", height: "auto", marginRight: "10px" }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: "50px",
+                    height: "50px",
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: "4px",
+                    marginRight: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                    color: "#666"
+                  }}
+                >
+                  {empresa.nombre.charAt(0).toUpperCase()}
+                </Box>
+              )}
               <Typography variant="body1">{empresa.nombre}</Typography>
             </Box>
           </MenuItem>

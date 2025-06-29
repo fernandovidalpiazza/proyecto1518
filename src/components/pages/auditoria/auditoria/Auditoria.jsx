@@ -114,6 +114,17 @@ const Auditoria = () => {
     }
   }, [empresaSeleccionada]);
 
+  // Efecto para manejar automáticamente la sucursal cuando no hay sucursales
+  useEffect(() => {
+    if (empresaSeleccionada && sucursales.length === 0) {
+      // Si no hay sucursales, establecer un valor por defecto
+      setSucursalSeleccionada("Sin sucursal específica");
+    } else if (empresaSeleccionada && sucursales.length > 0 && sucursalSeleccionada === "Sin sucursal específica") {
+      // Si ahora hay sucursales pero estaba el valor por defecto, resetear
+      setSucursalSeleccionada("");
+    }
+  }, [empresaSeleccionada, sucursales.length, sucursalSeleccionada]);
+
   const handleEmpresaChange = (selectedEmpresa) => {
     setEmpresaSeleccionada(selectedEmpresa);
     setSucursalSeleccionada(""); // Reset sucursal when empresa changes
@@ -126,6 +137,28 @@ const Auditoria = () => {
 
   const handleSeleccionarFormulario = (e) => {
     setFormularioSeleccionadoId(e.target.value);
+  };
+
+  // Función para verificar si se puede continuar con la auditoría
+  const puedeContinuarConAuditoria = () => {
+    // Siempre se puede continuar si hay una empresa seleccionada
+    // La sucursal es opcional - puede ser casa central o una sucursal específica
+    return empresaSeleccionada !== null;
+  };
+
+  // Función para obtener el tipo de ubicación
+  const obtenerTipoUbicacion = () => {
+    if (!empresaSeleccionada) return "";
+    
+    if (sucursales.length === 0) {
+      return "Casa Central";
+    }
+    
+    if (sucursalSeleccionada && sucursalSeleccionada !== "Sin sucursal específica") {
+      return `Sucursal: ${sucursalSeleccionada}`;
+    }
+    
+    return "Casa Central";
   };
 
   const handleGuardarRespuestas = (nuevasRespuestas) => {
@@ -173,10 +206,10 @@ const Auditoria = () => {
       {!auditoriaGenerada ? (
         <>
           <Typography variant="h5" gutterBottom>
-            Seleccionar Empresa y Sucursal
+            Seleccionar Empresa y Ubicación
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <SeleccionEmpresa
                 empresas={empresas}
                 empresaSeleccionada={empresaSeleccionada}
@@ -184,12 +217,31 @@ const Auditoria = () => {
               />
             </Grid>
             {empresaSeleccionada && (
-              <Grid item xs={12} sm={6}>
-                <SeleccionSucursal
-                  sucursales={sucursales}
-                  sucursalSeleccionada={sucursalSeleccionada}
-                  onChange={handleSucursalChange}
-                />
+              <Grid size={{ xs: 12, sm: 6 }}>
+                {sucursales.length > 0 ? (
+                  <SeleccionSucursal
+                    sucursales={sucursales}
+                    sucursalSeleccionada={sucursalSeleccionada}
+                    onChange={handleSucursalChange}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      p: 2,
+                      border: '1px solid #e0e0e0',
+                      borderRadius: 1,
+                      backgroundColor: '#f9f9f9'
+                    }}
+                  >
+                    <Typography variant="body1" color="textSecondary">
+                      <strong>Ubicación:</strong> Casa Central
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Esta empresa no tiene sucursales registradas. 
+                      La auditoría se realizará en casa central.
+                    </Typography>
+                  </Box>
+                )}
               </Grid>
             )}
           </Grid>
@@ -197,23 +249,80 @@ const Auditoria = () => {
           {empresaSeleccionada && (
             <Box mt={2} display="flex" alignItems="center">
               <Typography variant="h6" mr={2}>Logo de la empresa seleccionada:</Typography>
-              <img
-                src={empresaSeleccionada.logo}
-                alt={`Logo de ${empresaSeleccionada.nombre}`}
-                style={{ width: "100px", height: "auto" }}
-              />
+              {empresaSeleccionada.logo && empresaSeleccionada.logo.trim() !== "" ? (
+                <img
+                  src={empresaSeleccionada.logo}
+                  alt={`Logo de ${empresaSeleccionada.nombre}`}
+                  style={{ width: "100px", height: "auto" }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    width: "100px",
+                    height: "100px",
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "24px",
+                    color: "#666",
+                    border: "2px dashed #ccc"
+                  }}
+                >
+                  {empresaSeleccionada.nombre.charAt(0).toUpperCase()}
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {empresaSeleccionada && sucursales.length > 0 && (
+            <Box mt={2}>
+              <Alert severity="info">
+                <Typography variant="body2">
+                  <strong>Opciones disponibles:</strong>
+                </Typography>
+                <Typography variant="body2">
+                  • Seleccione una sucursal específica para auditar esa ubicación
+                </Typography>
+                <Typography variant="body2">
+                  • Deje vacío para auditar casa central
+                </Typography>
+              </Alert>
+            </Box>
+          )}
+
+          {empresaSeleccionada && (
+            <Box mt={2}>
+              <Alert severity="success">
+                <Typography variant="body2">
+                  <strong>Ubicación seleccionada:</strong> {obtenerTipoUbicacion()}
+                </Typography>
+              </Alert>
             </Box>
           )}
 
           <Grid container spacing={2} marginTop={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <SeleccionFormulario
                 formularios={formularios}
                 formularioSeleccionadoId={formularioSeleccionadoId}
                 onChange={handleSeleccionarFormulario}
+                disabled={!empresaSeleccionada}
               />
             </Grid>
           </Grid>
+
+          {!empresaSeleccionada && (
+            <Box mt={2}>
+              <Alert severity="info">
+                Por favor, seleccione una empresa para continuar con la auditoría.
+              </Alert>
+            </Box>
+          )}
 
           {formularioSeleccionadoId && (
             <PreguntasYSeccion
@@ -227,6 +336,13 @@ const Auditoria = () => {
           <BotonGenerarReporte
             onClick={generarReporte}
             deshabilitado={!todasLasPreguntasContestadas()}
+            empresa={empresaSeleccionada}
+            sucursal={sucursalSeleccionada}
+            formulario={formularios.find(formulario => formulario.id === formularioSeleccionadoId)}
+            respuestas={respuestas}
+            comentarios={comentarios}
+            imagenes={imagenes}
+            secciones={secciones}
           />
 
           {errores.length > 0 && (

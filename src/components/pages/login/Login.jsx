@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from '@mui/material';
+import { Box, Button, FormControl, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField, Typography, Alert } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { onSignIn } from '../../../firebaseConfig';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { handleLogin } = useAuth();
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -25,12 +28,27 @@ const Login = () => {
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
     setLoading(true);
+    setError('');
     try {
-      await onSignIn(values);
+      const result = await onSignIn(values);
+      handleLogin(result.user);
       navigate("/");
     } catch (error) {
-      console.error(error); // Muestra el error en la consola
-      setErrors({ password: 'Correo electrónico o contraseña incorrectos' });
+      console.error(error);
+      let errorMessage = 'Correo electrónico o contraseña incorrectos';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Usuario no encontrado';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Contraseña incorrecta';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Correo electrónico inválido';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Demasiados intentos fallidos. Intenta más tarde';
+      }
+      
+      setError(errorMessage);
+      setErrors({ password: errorMessage });
     }
     setLoading(false);
     setSubmitting(false);
@@ -45,63 +63,93 @@ const Login = () => {
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'column',
+        backgroundColor: '#f5f5f5',
       }}
     >
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+      <Box
+        sx={{
+          backgroundColor: 'white',
+          padding: 4,
+          borderRadius: 2,
+          boxShadow: 3,
+          maxWidth: 400,
+          width: '100%',
+        }}
       >
-        {({ isSubmitting }) => (
-          <Form>
-            <Grid
-              container
-              rowSpacing={2}
-              justifyContent={'center'}
-            >
-              <Grid item xs={10} md={12}>
-                <Field as={TextField} name="email" label="Correo Electrónico" fullWidth disabled={isSubmitting || loading} />
-                <ErrorMessage name="email" component="div" />
-              </Grid>
-              <Grid item xs={10} md={12}>
-                <FormControl variant="outlined" fullWidth>
-                  <InputLabel htmlFor="outlined-adornment-password">
-                    Contraseña
-                  </InputLabel>
-                  <Field
-                    as={OutlinedInput}
-                    name="password"
-                    id="outlined-adornment-password"
-                    type={showPassword ? 'text' : 'password'}
-                    endAdornment={
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          edge="end"
-                        >
-                          {showPassword ? (
-                            <VisibilityOff color="primary" />
-                          ) : (
-                            <Visibility color="primary" />
-                          )}
-                        </IconButton>
-                      </InputAdornment>
-                    }
-                    label="Contraseña"
+        <Typography variant="h4" component="h1" gutterBottom textAlign="center">
+          Iniciar Sesión
+        </Typography>
+        
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting, errors, touched }) => (
+            <Form>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12 }}>
+                  <Field 
+                    as={TextField} 
+                    name="email" 
+                    label="Correo Electrónico" 
+                    fullWidth 
                     disabled={isSubmitting || loading}
+                    error={touched.email && Boolean(errors.email)}
+                    helperText={touched.email && errors.email}
                   />
-                </FormControl>
-                <ErrorMessage name="password" component="div" />
-              </Grid>
-              <Link
-                to="/forgot-password"
-                style={{ color: 'steelblue', marginTop: '10px' }}
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-              <Grid container justifyContent="center" spacing={3} mt={2}>
-                <Grid item xs={10} md={5}>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <FormControl variant="outlined" fullWidth>
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Contraseña
+                    </InputLabel>
+                    <Field
+                      as={OutlinedInput}
+                      name="password"
+                      id="outlined-adornment-password"
+                      type={showPassword ? 'text' : 'password'}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={handleClickShowPassword}
+                            edge="end"
+                          >
+                            {showPassword ? (
+                              <VisibilityOff color="primary" />
+                            ) : (
+                              <Visibility color="primary" />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      label="Contraseña"
+                      disabled={isSubmitting || loading}
+                      error={touched.password && Boolean(errors.password)}
+                    />
+                  </FormControl>
+                  {touched.password && errors.password && (
+                    <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
+                      {errors.password}
+                    </Typography>
+                  )}
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Link
+                    to="/forgot-password"
+                    style={{ color: 'steelblue', textDecoration: 'none' }}
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
                   <Button
                     variant="contained"
                     fullWidth
@@ -110,17 +158,25 @@ const Login = () => {
                     sx={{
                       color: 'white',
                       textTransform: 'none',
-                      textShadow: '2px 2px 2px grey',
+                      py: 1.5,
                     }}
                   >
                     {loading ? 'Cargando...' : 'Ingresar'}
                   </Button>
                 </Grid>
+                <Grid size={{ xs: 12 }} textAlign="center">
+                  <Typography variant="body2">
+                    ¿No tienes cuenta?{' '}
+                    <Link to="/register" style={{ color: 'steelblue', textDecoration: 'none' }}>
+                      Regístrate aquí
+                    </Link>
+                  </Typography>
+                </Grid>
               </Grid>
-            </Grid>
-          </Form>
-        )}
-      </Formik>
+            </Form>
+          )}
+        </Formik>
+      </Box>
     </Box>
   );
 };

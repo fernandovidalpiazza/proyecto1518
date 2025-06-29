@@ -110,13 +110,35 @@ const Reporte = ({
         Sucursal: {sucursal}
       </Typography>
       
-      {empresa.logo && (
+      {empresa.logo && empresa.logo.trim() !== "" ? (
         <Box mt={2} mb={4}>
           <img
             src={empresa.logo}
             alt={`Logo de ${empresa.nombre}`}
             style={{ width: "100px", height: "auto" }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
           />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            width: "100px",
+            height: "100px",
+            backgroundColor: "#f0f0f0",
+            borderRadius: "8px",
+            marginTop: 2,
+            marginBottom: 4,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "24px",
+            color: "#666",
+            border: "2px dashed #ccc"
+          }}
+        >
+          {empresa.nombre.charAt(0).toUpperCase()}
         </Box>
       )}
 

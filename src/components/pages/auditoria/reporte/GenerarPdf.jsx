@@ -89,7 +89,7 @@ const ReportesPage = () => {
   if (loading) return <Typography>Cargando reportes...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
 
-  const empresas = [...new Set(reportes.map((reporte) => reporte.empresa.nombre))];
+  const empresas = [...new Set(reportes.map((reporte) => reporte.empresa?.nombre).filter(Boolean))];
 
   return (
     <Box className="reportes-container" p={3}>
@@ -136,18 +136,18 @@ const ReportesPage = () => {
                     </TableHead>
                     <TableBody>
                       <TableRow>
-                        <TableCell>{selectedReporte.formulario.nombre}</TableCell>
+                        <TableCell>{selectedReporte.formulario?.nombre ?? "Formulario no disponible"}</TableCell>
                         <TableCell>
-                          {selectedReporte.secciones[idx]?.nombre ?? "Sección no disponible"}
+                          {selectedReporte.secciones?.[idx]?.nombre ?? "Sección no disponible"}
                         </TableCell>
                         <TableCell>
-                          {selectedReporte.secciones[idx]?.preguntas[idx] ?? "Pregunta no disponible"}
+                          {selectedReporte.secciones?.[idx]?.preguntas?.[idx] ?? "Pregunta no disponible"}
                         </TableCell>
                         <TableCell>
-                          {selectedReporte.respuestas[idx] ?? "Respuesta no disponible"}
+                          {selectedReporte.respuestas?.[idx] ?? "Respuesta no disponible"}
                         </TableCell>
                         <TableCell>
-                          {selectedReporte.comentarios[idx] ?? "Comentario no disponible"}
+                          {selectedReporte.comentarios?.[idx] ?? "Comentario no disponible"}
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -196,9 +196,9 @@ const ReportesPage = () => {
               <TableBody>
                 {filteredReportes.map((reporte) => (
                   <TableRow key={reporte.id}>
-                    <TableCell>{reporte.empresa.nombre}</TableCell>
-                    <TableCell>{reporte.sucursal}</TableCell>
-                    <TableCell>{reporte.formulario.nombre}</TableCell>
+                    <TableCell>{reporte.empresa?.nombre ?? "Empresa no disponible"}</TableCell>
+                    <TableCell>{reporte.sucursal ?? "Sucursal no disponible"}</TableCell>
+                    <TableCell>{reporte.formulario?.nombre ?? "Formulario no disponible"}</TableCell>
                     <TableCell>
                       {reporte.fechaGuardado
                         ? new Date(reporte.fechaGuardado.seconds * 1000).toLocaleString()

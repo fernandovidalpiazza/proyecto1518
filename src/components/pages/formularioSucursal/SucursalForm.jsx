@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextField, Grid, Typography, Box, MenuItem } from "@mui/material";
+import { Button, TextField, Grid, Typography, Box, MenuItem, FormControl, InputLabel, Select } from "@mui/material";
 import { db } from "../../../firebaseConfig";
 import { getDocs, collection } from "firebase/firestore";
 
@@ -16,13 +16,16 @@ const SucursalForm = ({ agregarSucursal }) => {
     const obtenerEmpresas = async () => {
       try {
         const empresasSnapshot = await getDocs(collection(db, "empresas"));
-        const nombresEmpresas = [];
+        const empresasData = [];
         empresasSnapshot.forEach((doc) => {
-          nombresEmpresas.push(doc.data().nombre);
+          empresasData.push({
+            id: doc.id,
+            nombre: doc.data().nombre
+          });
         });
-        setEmpresas(nombresEmpresas);
+        setEmpresas(empresasData);
       } catch (error) {
-        console.error("Error al obtener nombres de empresas:", error);
+        console.error("Error al obtener empresas:", error);
       }
     };
 
@@ -44,7 +47,7 @@ const SucursalForm = ({ agregarSucursal }) => {
       nombre: "",
       direccion: "",
       telefono: "",
-      empresa: "", // Mantener el nombre de la empresa como ID
+      empresa: "",
     });
   };
 
@@ -54,60 +57,60 @@ const SucursalForm = ({ agregarSucursal }) => {
         Agregar Sucursal
       </Typography>
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              required
-              id="nombre"
               name="nombre"
               label="Nombre de la Sucursal"
               fullWidth
               value={sucursal.nombre}
               onChange={handleChange}
+              required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              required
-              id="direccion"
               name="direccion"
               label="Dirección"
               fullWidth
               value={sucursal.direccion}
               onChange={handleChange}
+              required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              required
-              id="telefono"
               name="telefono"
               label="Teléfono"
               fullWidth
               value={sucursal.telefono}
               onChange={handleChange}
+              required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              id="empresa"
-              name="empresa"
-              select
-              label="Empresa"
-              fullWidth
-              value={sucursal.empresa}
-              onChange={handleChange}
-            >
-              {empresas.map((empresa) => (
-                <MenuItem key={empresa} value={empresa}>
-                  {empresa}
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <FormControl fullWidth required>
+              <InputLabel>Empresa</InputLabel>
+              <Select
+                name="empresa"
+                value={sucursal.empresa}
+                onChange={handleChange}
+                label="Empresa"
+              >
+                <MenuItem value="">
+                  <em>Seleccione una empresa</em>
                 </MenuItem>
-              ))}
-            </TextField>
+                {empresas.map((empresa) => (
+                  <MenuItem key={empresa.id} value={empresa.nombre}>
+                    {empresa.nombre}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
-        <Button type="submit" variant="contained" color="primary">
-          Agregar
+        <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+          Agregar Sucursal
         </Button>
       </form>
     </Box>

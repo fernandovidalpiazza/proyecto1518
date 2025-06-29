@@ -16,8 +16,8 @@ export const routes = [
     Element: Home,
   },
   {
-    id: "User",
-    path: "/User",
+    id: "usuarios",
+    path: "/usuarios",
     Element: usuarios,
   },
   {
@@ -31,13 +31,13 @@ export const routes = [
     Element: SucursalContainer,
   },
   {
-    id: "products",
-    path: "/shop",
+    id: "auditoria",
+    path: "/auditoria",
     Element: Auditoria,
   },
   {
-    id: "cart",
-    path: "/cart",
+    id: "formulario",
+    path: "/formulario",
     Element: Formulario,
   },
   {
@@ -46,7 +46,7 @@ export const routes = [
     Element: EditarFormulario,
   },
   {
-    id: "informe",
+    id: "reporte",
     path: "/reporte",
     Element: GenerarPdf,
   },

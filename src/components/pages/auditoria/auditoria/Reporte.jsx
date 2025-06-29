@@ -109,7 +109,33 @@ const Reporte = ({
         <Typography variant="h2" gutterBottom>
           Reporte de Auditoría de Higiene y Seguridad
         </Typography>
-        <img src={empresa.logo} alt="Logo de la empresa" style={{ height: '60px' }} />
+        {empresa.logo && empresa.logo.trim() !== "" ? (
+          <img 
+            src={empresa.logo} 
+            alt="Logo de la empresa" 
+            style={{ height: '60px' }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+        ) : (
+          <Box
+            sx={{
+              width: "60px",
+              height: "60px",
+              backgroundColor: "#f0f0f0",
+              borderRadius: "4px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "18px",
+              color: "#666",
+              border: "1px solid #ccc"
+            }}
+          >
+            {empresa.nombre.charAt(0).toUpperCase()}
+          </Box>
+        )}
       </Box>
       <Typography variant="h4" gutterBottom>
         Datos de la Empresa
@@ -123,7 +149,7 @@ const Reporte = ({
       />
       <Grid container spacing={3} mt={3}>
         {/* Espacio para el primer gráfico: Estadísticas Generales */}
-        <Grid item xs={12} sm={2} md={10}>
+        <Grid size={{ xs: 12, sm: 2, md: 10 }}>
           <Box display="flex" justifyContent="center">
             <EstadisticasChart
               estadisticas={estadisticas}
@@ -134,7 +160,7 @@ const Reporte = ({
         </Grid>
 
         {/* Espacio para el segundo gráfico: Estadísticas (Sin "No aplica") */}
-        <Grid item xs={12} sm={2} md={10}>
+        <Grid size={{ xs: 12, sm: 2, md: 10 }}>
           <Box display="flex" justifyContent="center">
             <EstadisticasChart
               estadisticas={estadisticasSinNoAplica}

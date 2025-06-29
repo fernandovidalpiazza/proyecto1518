@@ -86,11 +86,11 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
           <Typography variant="h4">{seccion.nombre}</Typography>
           <Grid container spacing={2}>
             {seccion.preguntas.map((pregunta, preguntaIndex) => (
-              <Grid item xs={12} key={preguntaIndex}>
+              <Grid size={{ xs: 12 }} key={preguntaIndex}>
                 <Typography variant="body1">{pregunta}</Typography>
                 <Grid container spacing={1}>
                   {respuestasPosibles.map((respuesta, index) => (
-                    <Grid item key={index}>
+                    <Grid key={index}>
                       <Button
                         variant={respuestas[seccionIndex]?.[preguntaIndex] === respuesta ? "contained" : "outlined"}
                         onClick={() => handleRespuestaChange(seccionIndex, preguntaIndex, respuesta)}
@@ -100,7 +100,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
                       </Button>
                     </Grid>
                   ))}
-                  <Grid item>
+                  <Grid>
                     <Button
                       variant="outlined"
                       onClick={() => handleOpenModal(seccionIndex, preguntaIndex)}
@@ -109,7 +109,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
                     </Button>
                   </Grid>
                   {/* Botón para cargar imagen */}
-                  <Grid item>
+                  <Grid>
                     <input
                       accept="image/*"
                       style={{ display: 'none' }}
@@ -124,7 +124,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
                     </label>
                   </Grid>
                   {/* Mostrar la imagen subida */}
-                  <Grid item>
+                  <Grid>
                     {imagenes[seccionIndex]?.[preguntaIndex] && (
                       <img
                         src={URL.createObjectURL(imagenes[seccionIndex][preguntaIndex])}
@@ -134,7 +134,7 @@ const PreguntasYSeccion = ({ secciones: seccionesObj = {}, guardarRespuestas, gu
                     )}
                   </Grid>
                   {/* Mostrar el comentario asociado a esta pregunta */}
-                  <Grid item>
+                  <Grid>
                     <Typography>
                       {comentarios[seccionIndex]?.[preguntaIndex] || "Sin comentario"}
                     </Typography>

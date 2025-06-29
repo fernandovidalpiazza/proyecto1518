@@ -30,12 +30,12 @@ const FirmaSection = ({ isPdf = false, onSaveSignature }) => {
       spacing={2} 
       style={pdfStyle}
     >
-      <Grid item xs={12} md={12}>
+      <Grid size={{ xs: 12, md: 12 }}>
         <Box className="signature-container" mt={3}>
           <Firma title="Firma del Auditor" setFirmaURL={handleSaveSignature} />
         </Box>
       </Grid>
-      <Grid item xs={12} md={12}>
+      <Grid size={{ xs: 12, md: 12 }}>
         <Box className="signature-container" mt={3}>
           <Firma title="Firma del Responsable de la Empresa" setFirmaURL={handleSaveSignature} />
         </Box>

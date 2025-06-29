@@ -14,7 +14,7 @@ import {
 
 const ImagenesTable = ({ secciones, respuestas, comentarios, imagenes }) => {
   return (
-    <Grid item xs={12}>
+    <Grid size={{ xs: 12 }}>
       <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table>
           <TableHead>

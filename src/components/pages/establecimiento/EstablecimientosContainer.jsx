@@ -116,22 +116,42 @@ const EstablecimientosContainer = () => {
       </Box>
       <Grid container spacing={2} sx={{ marginTop: 4 }}>
         {empresas.map((empresa) => (
-          <Grid item xs={8} sm={4} md={3} key={empresa.id}>
+          <Grid size={{ xs: 8, sm: 4, md: 3 }} key={empresa.id}>
             <Card>
               <CardContent>
-                <img
-                  src={empresa.logo}
-                  alt="Logo de la empresa"
-                  style={{ width: "100%", height: "auto", marginBottom: 2 }}
-                />
+                {empresa.logo && empresa.logo.trim() !== "" ? (
+                  <img
+                    src={empresa.logo}
+                    alt="Logo de la empresa"
+                    style={{ width: "100%", height: "auto", marginBottom: 2 }}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "120px",
+                      backgroundColor: "#f0f0f0",
+                      borderRadius: "4px",
+                      marginBottom: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "24px",
+                      color: "#666",
+                      border: "2px dashed #ccc"
+                    }}
+                  >
+                    {empresa.nombre.charAt(0).toUpperCase()}
+                  </Box>
+                )}
                 <Typography variant="h6" gutterBottom>
                   Nombre de la empresa: {empresa.nombre}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   Dirección: {empresa.direccion}
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                  Número: {empresa.numero}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
                   Teléfono: {empresa.telefono}

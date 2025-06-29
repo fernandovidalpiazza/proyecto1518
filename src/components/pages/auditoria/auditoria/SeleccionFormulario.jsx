@@ -1,8 +1,8 @@
 import React from "react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
-const SeleccionFormulario = ({ formularios, formularioSeleccionadoId, onChange }) => (
-  <FormControl fullWidth>
+const SeleccionFormulario = ({ formularios, formularioSeleccionadoId, onChange, disabled = false }) => (
+  <FormControl fullWidth disabled={disabled}>
     <InputLabel>Formulario</InputLabel>
     <Select value={formularioSeleccionadoId} onChange={onChange}>
       <MenuItem value="">

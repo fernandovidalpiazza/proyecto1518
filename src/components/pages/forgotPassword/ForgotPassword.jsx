@@ -1,71 +1,143 @@
-import { Box, Button, Grid, TextField, Typography } from "@mui/material";
-import { useState } from "react";
-
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Box, Button, Grid, TextField, Typography, Alert } from "@mui/material";
+import { useNavigate, Link } from "react-router-dom";
 import { forgotPassword } from "../../../firebaseConfig";
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [email, setEmail]= useState ("")
-  const handleSubmit = async(e)=>{
-e.preventDefault()
-await forgotPassword (email)
-navigate ("/login")
-  }
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const initialValues = {
+    email: ''
+  };
+
+  const validationSchema = Yup.object().shape({
+    email: Yup.string()
+      .email('Correo electrónico inválido')
+      .required('Ingresa el correo electrónico')
+  });
+
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      await forgotPassword(values.email);
+      setSuccess('Se ha enviado un correo de recuperación a tu dirección de email.');
+    } catch (error) {
+      console.error(error);
+      let errorMessage = 'Error al enviar el correo de recuperación.';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No existe una cuenta con este correo electrónico.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Correo electrónico inválido.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Demasiados intentos. Intenta más tarde.';
+      }
+      
+      setError(errorMessage);
+      setErrors({ email: errorMessage });
+    }
+    setLoading(false);
+    setSubmitting(false);
+  };
 
   return (
-    <div>
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        backgroundColor: '#f5f5f5',
+      }}
+    >
       <Box
         sx={{
-          width: "100%",
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-          gap: "40px",
-          // backgroundColor: theme.palette.secondary.main,
+          backgroundColor: 'white',
+          padding: 4,
+          borderRadius: 2,
+          boxShadow: 3,
+          maxWidth: 400,
+          width: '100%',
         }}
       >
-        <Typography variant="h5" color={"primary"}>
-          ¿Olvidaste tu contraseña?
+        <Typography variant="h4" component="h1" gutterBottom textAlign="center">
+          Recuperar Contraseña
         </Typography>
-        <form onSubmit={handleSubmit}>
-          <Grid
-            container
-            rowSpacing={2}
-            // alignItems="center"
-            justifyContent={"center"}
-          >
-            <Grid item xs={10} md={12}>
-              <TextField
-                type="text"
-                variant="outlined"
-                label="Email"
-                fullWidth
-                name="email"
-                onChange={(e)=>setEmail (e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={10} md={12}>
-              <Button type="submit" variant="contained" fullWidth>
-                Recuperar
-              </Button>
-            </Grid>
-            <Grid item xs={10} md={12}>
-              <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                onClick={() => navigate("/login")}
-              >
-                Regresar
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
+        
+        <Typography variant="body1" textAlign="center" sx={{ mb: 3 }}>
+          Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+        </Typography>
+        
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        
+        {success && (
+          <Alert severity="success" sx={{ mb: 2 }}>
+            {success}
+          </Alert>
+        )}
+
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting, errors, touched }) => (
+            <Form>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12 }}>
+                  <Field 
+                    as={TextField} 
+                    name="email" 
+                    label="Correo Electrónico" 
+                    fullWidth 
+                    disabled={isSubmitting || loading}
+                    error={touched.email && Boolean(errors.email)}
+                    helperText={touched.email && errors.email}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    type="submit"
+                    disabled={isSubmitting || loading}
+                    sx={{
+                      color: 'white',
+                      textTransform: 'none',
+                      py: 1.5,
+                    }}
+                  >
+                    {loading ? 'Enviando...' : 'Enviar Correo de Recuperación'}
+                  </Button>
+                </Grid>
+                <Grid size={{ xs: 12 }} textAlign="center">
+                  <Typography variant="body2">
+                    ¿Recordaste tu contraseña?{' '}
+                    <Link to="/login" style={{ color: 'steelblue', textDecoration: 'none' }}>
+                      Inicia sesión aquí
+                    </Link>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Form>
+          )}
+        </Formik>
       </Box>
-    </div>
+    </Box>
   );
 };
 

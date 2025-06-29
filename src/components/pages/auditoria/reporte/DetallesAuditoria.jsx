@@ -7,9 +7,35 @@ import {
 import ResumenRespuestas from "./ResumenRespuestas";
 import FirmaSection from "./FirmaSection";
 import EstadisticasChart from "./EstadisticasChart";
+import { reconstruirDatosDesdeFirestore } from "../../../../utils/firestoreUtils";
 
 const DetallesAuditoria = ({ reporte, onClose }) => {
   if (!reporte) return null;
+
+  // Extraer datos de manera compatible con ambas estructuras
+  const nombreEmpresa = typeof reporte.empresa === 'object' 
+    ? reporte.empresa.nombre 
+    : reporte.empresa;
+  
+  const nombreFormulario = reporte.nombreForm || 
+    (typeof reporte.formulario === 'object' 
+      ? reporte.formulario.nombre 
+      : reporte.formulario);
+  
+  const fecha = reporte.fecha
+    ? new Date(reporte.fecha.seconds * 1000).toLocaleString()
+    : reporte.fechaGuardado
+    ? new Date(reporte.fechaGuardado).toLocaleString()
+    : "Fecha no disponible";
+
+  // Para las respuestas, manejar tanto arrays anidados como planos
+  const respuestasFinales = reporte.metadata 
+    ? reconstruirDatosDesdeFirestore(reporte).respuestas
+    : reporte.respuestas;
+
+  const comentariosFinales = reporte.metadata 
+    ? reconstruirDatosDesdeFirestore(reporte).comentarios
+    : reporte.comentarios;
 
   return (
     <Box className="pdf-content">
@@ -17,21 +43,21 @@ const DetallesAuditoria = ({ reporte, onClose }) => {
         Detalles del Reporte de Auditoría
       </Typography>
       <Typography variant="h4" gutterBottom>
-        Empresa: {reporte.empresa?.nombre || "Nombre no disponible"}
+        Empresa: {nombreEmpresa || "Empresa no disponible"}
       </Typography>
       <Typography variant="h6">
         Sucursal: {reporte.sucursal || "Sucursal no disponible"}
       </Typography>
       <Typography variant="h6">
-        Fecha y Hora de Guardado:{" "}
-        {reporte.fechaGuardado
-          ? new Date(reporte.fechaGuardado.seconds * 1000).toLocaleString()
-          : "Fecha no disponible"}
+        Formulario: {nombreFormulario || "Formulario no disponible"}
+      </Typography>
+      <Typography variant="h6">
+        Fecha y Hora de Guardado: {fecha}
       </Typography>
 
       <ResumenRespuestas
-        respuestas={reporte.respuestas || {}}
-        comentarios={reporte.comentarios || {}}
+        respuestas={respuestasFinales || []}
+        comentarios={comentariosFinales || []}
         secciones={reporte.secciones || []}
       />
 
@@ -59,7 +85,7 @@ const DetallesAuditoria = ({ reporte, onClose }) => {
         </Box>
       </Box>
 
-      <Box display="flex" justifyContent="flex-end">
+      <Box display="flex" justifyContent="flex-end" className="no-print">
         <Button variant="outlined" color="secondary" onClick={onClose}>
           Volver
         </Button>

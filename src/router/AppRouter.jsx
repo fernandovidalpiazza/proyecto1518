@@ -4,37 +4,27 @@ import { routes } from "./routes";
 import Login from "../components/pages/login/Login";
 import Register from "../components/pages/register/Register";
 import ForgotPassword from "../components/pages/forgotPassword/ForgotPassword";
-import SucursalContainer from "../components/pages/SucursalContainer.jsx/SucursalContainer";
-
+import ProtectedUsers from "./ProtectedUsers";
 
 const AppRouter = () => {
   return (
     <Routes>
-      <Route element={<Navbar />}>
-        {routes.map(({ id, path, Element }) => (
-          <Route key={id} path={path} element={<Element />} />
-          
-        ))}
-      </Route>
-
-      {/* Login */}
+      {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
-
-      {/* register  */}
       <Route path="/register" element={<Register />} />
-      
-      <Route path="/sucursales" component={SucursalContainer}/>
-
-      {/* forgot password  */}
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-     
-
+      {/* Rutas protegidas */}
+      <Route element={<ProtectedUsers />}>
+        <Route element={<Navbar />}>
+          {routes.map(({ id, path, Element }) => (
+            <Route key={id} path={path} element={<Element />} />
+          ))}
+        </Route>
+      </Route>
 
       {/* Not found */}
       <Route path="*" element={<h1>Not found</h1>} />
-
-
     </Routes>
   );
 };

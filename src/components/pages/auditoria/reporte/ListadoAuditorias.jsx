@@ -29,11 +29,15 @@ const ListadoAuditorias = ({ onSelect, empresaSeleccionada }) => {
         }));
 
         reportesData.sort((a, b) => {
-          const fechaA = a.fechaGuardado
-            ? new Date(a.fechaGuardado.seconds * 1000)
+          const fechaA = a.fecha
+            ? new Date(a.fecha.seconds * 1000)
+            : a.fechaGuardado
+            ? new Date(a.fechaGuardado)
             : new Date(0);
-          const fechaB = b.fechaGuardado
-            ? new Date(b.fechaGuardado.seconds * 1000)
+          const fechaB = b.fecha
+            ? new Date(b.fecha.seconds * 1000)
+            : b.fechaGuardado
+            ? new Date(b.fechaGuardado)
             : new Date(0);
           return fechaB - fechaA;
         });
@@ -54,7 +58,12 @@ const ListadoAuditorias = ({ onSelect, empresaSeleccionada }) => {
 
   // Filtrar los reportes si hay una empresa seleccionada
   const reportesFiltrados = empresaSeleccionada
-    ? reportes.filter((reporte) => reporte.empresa?.nombre === empresaSeleccionada)
+    ? reportes.filter((reporte) => {
+        const nombreEmpresa = typeof reporte.empresa === 'object' 
+          ? reporte.empresa.nombre 
+          : reporte.empresa;
+        return nombreEmpresa === empresaSeleccionada;
+      })
     : reportes;
 
   return (
@@ -70,27 +79,40 @@ const ListadoAuditorias = ({ onSelect, empresaSeleccionada }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {reportesFiltrados.map((reporte) => (
-            <TableRow key={reporte.id}>
-              <TableCell>{reporte.empresa?.nombre || "Nombre no disponible"}</TableCell>
-              <TableCell>{reporte.sucursal || "Sucursal no disponible"}</TableCell>
-              <TableCell>{reporte.formulario.nombre || "Sucursal no disponible"}</TableCell>
-              <TableCell>
-                {reporte.fechaGuardado
-                  ? new Date(reporte.fechaGuardado.seconds * 1000).toLocaleString()
-                  : "Fecha no disponible"}
-              </TableCell>
-              <TableCell>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => onSelect(reporte)}
-                >
-                  Ver Detalles
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {reportesFiltrados.map((reporte) => {
+            const nombreEmpresa = typeof reporte.empresa === 'object' 
+              ? reporte.empresa.nombre 
+              : reporte.empresa;
+            
+            const nombreFormulario = reporte.nombreForm || 
+              (typeof reporte.formulario === 'object' 
+                ? reporte.formulario.nombre 
+                : reporte.formulario);
+            
+            const fecha = reporte.fecha
+              ? new Date(reporte.fecha.seconds * 1000).toLocaleString()
+              : reporte.fechaGuardado
+              ? new Date(reporte.fechaGuardado).toLocaleString()
+              : "Fecha no disponible";
+
+            return (
+              <TableRow key={reporte.id}>
+                <TableCell>{nombreEmpresa || "Empresa no disponible"}</TableCell>
+                <TableCell>{reporte.sucursal || "Sucursal no disponible"}</TableCell>
+                <TableCell>{nombreFormulario || "Formulario no disponible"}</TableCell>
+                <TableCell>{fecha}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => onSelect(reporte)}
+                  >
+                    Ver Detalles
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
